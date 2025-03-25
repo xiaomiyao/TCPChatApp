@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -9,6 +10,7 @@ namespace TCPChatApp.Server
     {
         private TcpListener _listener;
         private bool _isRunning;
+        private List<TcpClient> _clients = new List<TcpClient>();
 
         public void Start(int port = 5000)
         {
@@ -32,14 +34,18 @@ namespace TCPChatApp.Server
                     TcpClient client = _listener.AcceptTcpClient();
                     Console.WriteLine("New client connected!");
 
+                    lock (_clients)
+                    {
+                        _clients.Add(client);
+                    }
+
                     // Hand off client to ClientHandler
-                    var handler = new ClientHandler(client);
+                    var handler = new ClientHandler(client, _clients);
                     Thread clientThread = new Thread(handler.HandleClient);
                     clientThread.Start();
                 }
                 catch (SocketException)
                 {
-                   
                     break;
                 }
             }

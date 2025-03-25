@@ -9,7 +9,7 @@
 
 
   <ItemGroup>
-    <ProjectReference Include="..\ClassLibraryTCPChatApp.Common\TCPChatApp.Common.csproj" />
+    <ProjectReference Include="..\TCPChatApp.Common\TCPChatApp.Common.csproj" />
   </ItemGroup>
 
 </Project>

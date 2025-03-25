@@ -1,5 +1,5 @@
-﻿
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
 using TCPChatApp.Common.Helpers;
@@ -9,10 +9,12 @@ namespace TCPChatApp.Server
     public class ClientHandler
     {
         private readonly TcpClient _client;
+        private readonly List<TcpClient> _clients;
 
-        public ClientHandler(TcpClient client)
+        public ClientHandler(TcpClient client, List<TcpClient> clients)
         {
             _client = client;
+            _clients = clients;
         }
 
         public void HandleClient()
@@ -25,19 +27,14 @@ namespace TCPChatApp.Server
 
                 while (true)
                 {
-                  
                     string encryptedMessage = reader.ReadLine();
                     if (string.IsNullOrEmpty(encryptedMessage))
                         break;
 
-
                     string plainText = TCPChatApp.Common.Helpers.EncryptionHelper.Decrypt(encryptedMessage);
                     Console.WriteLine($"Received: {plainText}");
 
-                    
-                    string response = $"Server echo: {plainText}";
-                    string encryptedResponse = TCPChatApp.Common.Helpers.EncryptionHelper.Encrypt(response);
-                    writer.WriteLine(encryptedResponse);
+                    BroadcastMessage(plainText);
                 }
             }
             catch (Exception ex)
@@ -46,7 +43,39 @@ namespace TCPChatApp.Server
             }
             finally
             {
+                lock (_clients)
+                {
+                    _clients.Remove(_client);
+                }
                 _client.Close();
+            }
+        }
+
+        private void BroadcastMessage(string message)
+        {
+            string encryptedMessage = TCPChatApp.Common.Helpers.EncryptionHelper.Encrypt(message);
+            lock (_clients)
+            {
+                foreach (var client in _clients)
+                {
+                    if (client != _client)
+                    {
+                        try
+                        {
+                            var stream = client.GetStream();
+                            // Use leaveOpen = true to avoid closing the underlying stream
+                            var writer = new StreamWriter(stream, System.Text.Encoding.UTF8, 1024, leaveOpen: true)
+                            {
+                                AutoFlush = true
+                            };
+                            writer.WriteLine(encryptedMessage);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Error broadcasting message: {ex.Message}");
+                        }
+                    }
+                }
             }
         }
     }

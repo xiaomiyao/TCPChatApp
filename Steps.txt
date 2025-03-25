@@ -1,180 +1,98 @@
-Phase 1: Establish Basic Communication Infrastructure
-Create a Basic Echo Server:
 
-Set up a TCP listener on a fixed port.
 
-Accept one client connection.
-
-Read a message from the client and echo it back.
-
-Test this using telnet or a simple client.
-
-Develop a Simple Client:
-
-Create a client (console or WPF) that connects to the echo server.
-
-Send a message from the client.
-
-Listen for and display the echoed message.
-
-Verify the client-server communication works.
-
-Expand Server to Support Multiple Clients:
-
-Modify the server to accept multiple client connections concurrently.
-
-Maintain a list (e.g., List<TcpClient>) of all connected clients.
-
-Update the server so that when a message is received, it’s echoed back to all connected clients (broadcasting).
-
-Phase 2: Secure Communication
-Integrate Message Encryption:
-
-Implement an AES-based encryption helper in your Common library.
-
-Update the client to encrypt messages before sending.
-
-Update the server to decrypt incoming messages and encrypt responses.
-
-Test end-to-end encrypted communication between client and server.
-
-Phase 3: User Registration and Authentication
-Design User Model:
-
-Create a User.cs class with properties such as Id, Username, and PasswordHash.
-
-(Optional) Use a secure method to store passwords (hashing).
-
-Implement Registration:
-
-Create functionality on the server to handle registration requests.
-
-Store user information in your database (SQL Server via SSMS) or an in-memory structure for testing.
-
-Test registration by sending user details from the client to the server.
-
-Implement Authentication:
-
-Create a login mechanism on the server that validates credentials.
-
-Ensure the client can log in using a username and password.
-
-Maintain session state for logged-in users.
-
-Phase 4: Contact List Management
-Design Contact Data Model:
-
-Decide if contacts will be part of the User model or stored in a separate structure.
-
-Each user should have a list of contacts (e.g., a list of user IDs).
-
-Implement Contact List Functionality:
-
-Add Contact: Allow users to add new contacts.
-
-Edit Contact: Enable renaming or updating contact information.
-
-Delete Contact: Allow removal of contacts.
-
-Update the client UI (WPF) to support managing contacts.
-
-Test each operation separately (add, edit, delete).
-
-Phase 5: Messaging Functionalities
-Direct (One-to-One) Messaging:
-
-Allow a user to select a contact and send a private message.
-
-Update the server to route the message to the intended recipient only.
-
-Test by sending messages between two clients.
-
-Group Messaging:
-
-Implement functionality to create groups (or use broadcast logic for now).
-
-Allow sending messages to multiple users simultaneously.
-
-Test group messaging with several clients connected.
-
-Phase 6: Blacklist Functionality
-Design Blacklist Model:
-
-Add a blacklist property to the user model (e.g., a list of blocked user IDs).
-
-Implement Blacklist Management:
-
-Add to Blacklist: Allow a user to block another user.
-
-Edit/Delete Blacklist Entries: Enable updating or removing blocked users.
-
-Update the server to check the blacklist before delivering a message.
-
-Test by blocking a user and verifying that their messages are not delivered.
-
-Phase 7: User Status Tracking
-Implement Status Notifications:
-
-When a user logs in, have the server notify all their contacts that the user is online.
-
-When a user logs out, notify contacts that the user is offline.
-
-Update the client UI to display these status changes.
-
-Test by logging in/out from different clients and checking notifications.
-
-Phase 8: Message History Storage
-Design Message History Model:
-
-Create a Message class with properties such as sender, recipient, timestamp, and content.
-
-Plan for storing these messages in your database.
-
-Implement Message History Persistence:
-
-On the server, save every message to SQL Server (using ADO.NET or an ORM like Entity Framework).
-
-Create methods to retrieve the conversation history for a specific contact.
-
-Test by sending messages, then retrieving and displaying the history.
-
-Phase 9: Search Functionality
-Implement Contact Search:
-
-Add a search bar in the client to filter contacts by name or a part of the name.
-
-Test the search function with various inputs.
-
-Implement Message Search:
-
-By Specific User: Allow searching for messages exchanged with a specific user.
-
-Across All Users: Enable searching through all message histories for a keyword.
-
-Update the UI to display search results.
-
-Test both search scenarios to ensure accurate filtering.
-
-Phase 10: Final Integration and Testing
-Integration Testing:
-
-Run the complete application (server and multiple clients).
-
-Test full user flows: registration, login, managing contacts, sending/receiving messages, blacklist, status notifications, message history, and search functionality.
-
-Enhance UI and Error Handling:
-
-Refine the WPF UI with proper data binding and MVVM if desired.
-
-Add comprehensive error handling and logging on both client and server sides.
-
-Test robustness by simulating disconnections and errors.
-
-Documentation and Final Code Review:
-
-Document your code and overall architecture.
-
-Prepare a README with instructions on how to build and run the application.
-
-Conduct a final review and refactor code as needed.
+1. **Create a Basic Echo Server:**
+   1.1. Set up a TCP listener on a fixed port.  
+   1.2. Accept one client connection.  
+   1.3. Read a message from the client and echo it back.  
+   1.4. Test this using telnet or a simple client.
+
+2. **Develop a Simple Client:**
+   2.1. Create a client (console or WPF) that connects to the echo server.  
+   2.2. Send a message from the client.  
+   2.3. Listen for and display the echoed message.  
+   2.4. Verify the client-server communication works.
+
+3. **Expand Server to Support Multiple Clients:**
+   3.1. Modify the server to accept multiple client connections concurrently.  
+   3.2. Maintain a list (e.g., a List<TcpClient>) of all connected clients.  
+   3.3. Update the server so that when a message is received, it’s echoed back to all connected clients (broadcasting).
+
+4. **Integrate Message Encryption:**
+   4.1. Implement an AES-based encryption helper in your Common library.  
+   4.2. Update the client to encrypt messages before sending.  
+   4.3. Update the server to decrypt incoming messages and encrypt responses.  
+   4.4. Test end-to-end encrypted communication between client and server.
+
+5. **Design User Model for Registration and Authentication:**
+   5.1. Create a User.cs class with properties such as Id, Username, and PasswordHash.  
+   5.2. (Optional) Use a secure method to store passwords (hashing).
+
+6. **Implement User Registration:**
+   6.1. Create functionality on the server to handle registration requests.  
+   6.2. Store user information in your database (SQL Server via SSMS) or an in-memory structure for testing.  
+   6.3. Test registration by sending user details from the client to the server.
+
+7. **Implement User Authentication:**
+   7.1. Create a login mechanism on the server that validates credentials.  
+   7.2. Ensure the client can log in using a username and password.  
+   7.3. Maintain session state for logged-in users.
+
+8. **Design Contact List Management:**
+   8.1. Decide if contacts will be part of the User model or stored in a separate structure.  
+   8.2. Each user should have a list of contacts (e.g., a list of user IDs).
+
+9. **Implement Contact List Functionality:**
+   9.1. Add Contact – allow users to add new contacts.  
+   9.2. Edit Contact – enable renaming or updating contact information.  
+   9.3. Delete Contact – allow removal of contacts.  
+   9.4. Update the client UI (WPF) to support managing contacts.  
+   9.5. Test each operation separately (add, edit, delete).
+
+10. **Implement Direct (One-to-One) Messaging:**
+    10.1. Allow a user to select a contact and send a private message.  
+    10.2. Update the server to route the message to the intended recipient only.  
+    10.3. Test by sending messages between two clients.
+
+11. **Implement Group Messaging:**
+    11.1. Implement functionality to create groups (or use broadcast logic for now).  
+    11.2. Allow sending messages to multiple users simultaneously.  
+    11.3. Test group messaging with several clients connected.
+
+12. **Implement Blacklist Functionality:**
+    12.1. Design a Blacklist Model – add a blacklist property to the User model (e.g., a list of blocked user IDs).  
+    12.2. Add to Blacklist – allow a user to block another user.  
+    12.3. Edit/Delete Blacklist Entries – enable updating or removing blocked users.  
+    12.4. Update the server to check the blacklist before delivering a message.  
+    12.5. Test by blocking a user and verifying that their messages are not delivered.
+
+13. **Implement User Status Tracking:**
+    13.1. When a user logs in, have the server notify all their contacts that the user is online.  
+    13.2. When a user logs out, notify contacts that the user is offline.  
+    13.3. Update the client UI to display these status changes.  
+    13.4. Test by logging in/out from different clients and checking notifications.
+
+14. **Implement Message History Storage:**
+    14.1. Design a Message model with properties such as sender, recipient, timestamp, and content.  
+    14.2. Plan for storing these messages in your database (SQL Server).  
+    14.3. On the server, save every message to SQL Server (using ADO.NET or an ORM like Entity Framework).  
+    14.4. Create methods to retrieve the conversation history for a specific contact.  
+    14.5. Test by sending messages, then retrieving and displaying the history.
+
+15. **Implement Search Functionality:**
+    15.1. Implement Contact Search – add a search bar in the client to filter contacts by name or a part of the name.  
+    15.2. Implement Message Search by Specific User – allow searching for messages exchanged with a specific user.  
+    15.3. Implement Message Search Across All Users – enable searching through all message histories for a keyword.  
+    15.4. Update the UI to display search results.  
+    15.5. Test both search scenarios to ensure accurate filtering.
+
+16. **Final Integration and Testing:**
+    16.1. Run the complete application (server and multiple clients) and test full user flows: registration, login, managing contacts, sending/receiving messages, blacklist, status notifications, message history, and search functionality.  
+    16.2. Enhance the WPF UI with proper data binding and, if desired, adopt the MVVM pattern.  
+    16.3. Add comprehensive error handling and logging on both client and server sides.  
+    16.4. Test robustness by simulating disconnections and errors.
+
+17. **Documentation and Final Code Review:**
+    17.1. Document your code and overall architecture.  
+    17.2. Prepare a README with instructions on how to build and run the application.  
+    17.3. Conduct a final review and refactor code as needed.
 

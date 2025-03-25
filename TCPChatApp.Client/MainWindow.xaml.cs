@@ -79,6 +79,7 @@ namespace TCPChatApp.Client
                     string encrypted = TCPChatApp.Common.Helpers.EncryptionHelper.Encrypt(message);
                     _writer.WriteLine(encrypted);
                     MessageInput.Clear();
+                    Dispatcher.Invoke(() => ChatDisplay.AppendText($"{message}\n"));
                 }
             }
             catch (Exception ex)
