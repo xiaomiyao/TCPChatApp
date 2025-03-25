@@ -1,8 +1,8 @@
-﻿// TCPChatApp.Server/ClientHandler.cs
+﻿
 using System;
 using System.IO;
 using System.Net.Sockets;
-using ClassLibraryTCPChatApp.Common.Helpers; 
+using TCPChatApp.Common.Helpers;
 
 namespace TCPChatApp.Server
 {
@@ -30,13 +30,13 @@ namespace TCPChatApp.Server
                     if (string.IsNullOrEmpty(encryptedMessage))
                         break;
 
-                    
-                    string plainText = EncryptionHelper.Decrypt(encryptedMessage);
+
+                    string plainText = TCPChatApp.Common.Helpers.EncryptionHelper.Decrypt(encryptedMessage);
                     Console.WriteLine($"Received: {plainText}");
 
                     
                     string response = $"Server echo: {plainText}";
-                    string encryptedResponse = EncryptionHelper.Encrypt(response);
+                    string encryptedResponse = TCPChatApp.Common.Helpers.EncryptionHelper.Encrypt(response);
                     writer.WriteLine(encryptedResponse);
                 }
             }

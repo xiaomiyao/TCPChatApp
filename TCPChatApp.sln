@@ -1,13 +1,20 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35707.178 d17.12
+VisualStudioVersion = 17.12.35707.178
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TCPChatApp.Client", "TCPChatApp.Client\TCPChatApp.Client.csproj", "{5B869E1A-378C-4841-ABD0-79F5389C86C5}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TCPChatApp.Server", "TCPChatApp.Server\TCPChatApp.Server.csproj", "{EFDE4FD8-CDCA-4BF8-B604-AA51798C4C19}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassLibraryTCPChatApp.Common", "ClassLibraryTCPChatApp.Common\ClassLibraryTCPChatApp.Common.csproj", "{F7642BA1-9540-48B1-94C6-BBCE5D2FAA99}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TCPChatApp.Common", "ClassLibraryTCPChatApp.Common\TCPChatApp.Common.csproj", "{F7642BA1-9540-48B1-94C6-BBCE5D2FAA99}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp1", "ConsoleApp1\ConsoleApp1.csproj", "{699FA4D3-C13C-459D-9B3F-66074B6649A7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TCPChatApp.Client", "TCPChatApp.Client\TCPChatApp.Client.csproj", "{97268D84-7B23-4BE0-AEAF-E5305E59CBFF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{85E755C4-D7C2-4434-800E-98D3E3733A43}"
+	ProjectSection(SolutionItems) = preProject
+		Steps.txt = Steps.txt
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,10 +22,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{5B869E1A-378C-4841-ABD0-79F5389C86C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5B869E1A-378C-4841-ABD0-79F5389C86C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5B869E1A-378C-4841-ABD0-79F5389C86C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5B869E1A-378C-4841-ABD0-79F5389C86C5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EFDE4FD8-CDCA-4BF8-B604-AA51798C4C19}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{EFDE4FD8-CDCA-4BF8-B604-AA51798C4C19}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EFDE4FD8-CDCA-4BF8-B604-AA51798C4C19}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -27,6 +30,14 @@ Global
 		{F7642BA1-9540-48B1-94C6-BBCE5D2FAA99}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F7642BA1-9540-48B1-94C6-BBCE5D2FAA99}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F7642BA1-9540-48B1-94C6-BBCE5D2FAA99}.Release|Any CPU.Build.0 = Release|Any CPU
+		{699FA4D3-C13C-459D-9B3F-66074B6649A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{699FA4D3-C13C-459D-9B3F-66074B6649A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{699FA4D3-C13C-459D-9B3F-66074B6649A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{699FA4D3-C13C-459D-9B3F-66074B6649A7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{97268D84-7B23-4BE0-AEAF-E5305E59CBFF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{97268D84-7B23-4BE0-AEAF-E5305E59CBFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{97268D84-7B23-4BE0-AEAF-E5305E59CBFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{97268D84-7B23-4BE0-AEAF-E5305E59CBFF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

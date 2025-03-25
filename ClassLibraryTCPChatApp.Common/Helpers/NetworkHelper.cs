@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ClassLibraryTCPChatApp.Common.Helpers
+namespace TCPChatApp.Common.Helpers
 {
     internal class NetworkHelper
     {

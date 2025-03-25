@@ -5,13 +5,14 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ClassLibraryTCPChatApp.Common.Helpers
+namespace TCPChatApp.Common.Helpers
 {
     public static class EncryptionHelper
     {
-        
-        private static readonly byte[] AesKey = Encoding.UTF8.GetBytes("Your16ByteKeyHere");
-        private static readonly byte[] AesIV = Encoding.UTF8.GetBytes("Your16ByteIVHere!");
+
+        private static readonly byte[] AesKey = Encoding.UTF8.GetBytes("1234567890ABCDEF");  
+        private static readonly byte[] AesIV = Encoding.UTF8.GetBytes("FEDCBA0987654321");  
+
 
         public static string Encrypt(string plainText)
         {

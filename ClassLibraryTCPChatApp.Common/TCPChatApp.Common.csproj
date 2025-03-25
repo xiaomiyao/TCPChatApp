@@ -11,8 +11,4 @@
     <PackageReference Include="EncryptionHelper" Version="1.0.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\TCPChatApp.Server\TCPChatApp.Server.csproj" />
-  </ItemGroup>
-
 </Project>
