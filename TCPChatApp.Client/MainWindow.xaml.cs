@@ -51,14 +51,26 @@ namespace TCPChatApp.Client
             {
                 while (true)
                 {
-                    // 🔒 Read encrypted
+                    // 🔒 Read encrypted message
                     string encryptedMessage = _reader.ReadLine();
                     if (string.IsNullOrEmpty(encryptedMessage)) continue;
 
-                    // 🔓 Decrypt
-                    string message = TCPChatApp.Common.Helpers.CryptoHelper.Decrypt(encryptedMessage);
-                    // 🖥️ Update UI
-                    Dispatcher.Invoke(() => ChatDisplay.AppendText($"{message}\n"));
+                    // 🔓 Decrypt message
+                    string plainText = TCPChatApp.Common.Helpers.CryptoHelper.Decrypt(encryptedMessage);
+                    // 📬 Attempt to deserialize as Envelope
+                    var envelope = JsonSerializer.Deserialize<Envelope>(plainText);
+
+                    if (envelope != null && envelope.Type == "ChatMessage")
+                    {
+                        // 🖥️ Display message with sender and content
+                        string displayText = $"{envelope.Message.Sender}: {envelope.Message.Content}";
+                        Dispatcher.Invoke(() => ChatDisplay.AppendText($"{displayText}\n"));
+                    }
+                    else
+                    {
+                        // If envelope is null or not a ChatMessage, display the plain text
+                        Dispatcher.Invoke(() => ChatDisplay.AppendText($"{plainText}\n"));
+                    }
                 }
             }
             catch (Exception ex)
@@ -76,10 +88,7 @@ namespace TCPChatApp.Client
                 string message = MessageInput.Text;
                 if (!string.IsNullOrEmpty(message))
                 {
-                    // 👤 Sender
-                    // 👥 Recipient
-                    // ✉️ Content
-                    // ⏰ Timestamp
+                    // 📨 Create message
                     var messageModel = new Message
                     {
                         Sender = "Client",
@@ -88,8 +97,16 @@ namespace TCPChatApp.Client
                         Timestamp = DateTime.Now
                     };
 
+                    // 📬 Create envelope
+                    var envelope = new Envelope
+                    {
+                        Type = "ChatMessage",
+                        Message = messageModel,
+                        User = null // Optional: Add user info if needed
+                    };
+
                     // 🔄 Serialize
-                    string json = JsonSerializer.Serialize(messageModel);
+                    string json = JsonSerializer.Serialize(envelope);
                     // 🔒 Encrypt
                     string encrypted = TCPChatApp.Common.Helpers.CryptoHelper.Encrypt(json);
                     // ✍️ Send
@@ -98,7 +115,7 @@ namespace TCPChatApp.Client
                     // 🧹 Clear input
                     MessageInput.Clear();
                     // 🖥️ Update UI
-                    Dispatcher.Invoke(() => ChatDisplay.AppendText($"{message}\n"));
+                    Dispatcher.Invoke(() => ChatDisplay.AppendText($"You: {message}\n"));
                 }
             }
             catch (Exception ex)

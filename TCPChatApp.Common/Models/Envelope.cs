@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace TCPChatApp.Common.Models
 {
-    public class User
+    public class Envelope
     {
-       
-        public string Username { get; set; }
-        public string PasswordHash { get; set; }
+        public string Type { get; set; }
+        public Message Message { get; set; }
+        public User User { get; set; }
     }
 }

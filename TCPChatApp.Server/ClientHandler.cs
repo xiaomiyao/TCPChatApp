@@ -36,15 +36,22 @@ namespace TCPChatApp.Server
                     string encryptedMessage = reader.ReadLine();
                     if (string.IsNullOrEmpty(encryptedMessage)) break;
 
-                    // 🔓 Process message
+                    // 🔓 Process message: decrypt then deserialize as Envelope
                     string plainText = CryptoHelper.Decrypt(encryptedMessage);
-                    var deserializedMessage = JsonSerializer.Deserialize<Message>(plainText);
+                    var envelope = JsonSerializer.Deserialize<Envelope>(plainText);
 
-                    // 📝 Log
-                    Console.WriteLine($"📨 Received: {deserializedMessage.Content}");
+                    if (envelope != null && envelope.Type == "ChatMessage")
+                    {
+                        // 📝 Log the message
+                        Console.WriteLine($"📨 Received from {envelope.Message.Sender}: {envelope.Message.Content}");
 
-                    // 📢 Broadcast
-                    BroadcastMessage(plainText);
+                        // 📢 Broadcast the envelope (as plain text)
+                        BroadcastMessage(plainText);
+                    }
+                    else
+                    {
+                        Console.WriteLine("⚠️ Received envelope with unknown type or invalid format.");
+                    }
                 }
             }
             catch (Exception ex)
