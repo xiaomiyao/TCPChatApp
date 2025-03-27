@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace TCPChatApp.Common.Helpers
 {
-    public static class EncryptionHelper
+    public static class CryptoHelper
     {
 
         private static readonly byte[] AesKey = Encoding.UTF8.GetBytes("1234567890ABCDEF");  

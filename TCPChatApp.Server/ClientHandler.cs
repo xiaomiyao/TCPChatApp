@@ -2,14 +2,15 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
-using TCPChatApp.Common.Helpers;
 using System.Text.Json;
+using TCPChatApp.Common.Helpers;
 using TCPChatApp.Common.Models;
 
 namespace TCPChatApp.Server
 {
     public class ClientHandler
     {
+        // 🔌 Connection objects
         private readonly TcpClient _client;
         private readonly List<TcpClient> _clients;
 
@@ -23,63 +24,73 @@ namespace TCPChatApp.Server
         {
             try
             {
+                // 🔄 Setup streams
                 using var networkStream = _client.GetStream();
                 using var reader = new StreamReader(networkStream);
                 using var writer = new StreamWriter(networkStream) { AutoFlush = true };
 
+                // 👂 Message loop
                 while (true)
                 {
+                    // 📥 Get message
                     string encryptedMessage = reader.ReadLine();
-                    if (string.IsNullOrEmpty(encryptedMessage))
-                        break;
+                    if (string.IsNullOrEmpty(encryptedMessage)) break;
 
-                    string plainText = TCPChatApp.Common.Helpers.EncryptionHelper.Decrypt(encryptedMessage);
+                    // 🔓 Process message
+                    string plainText = CryptoHelper.Decrypt(encryptedMessage);
                     var deserializedMessage = JsonSerializer.Deserialize<Message>(plainText);
-                    Console.WriteLine($"Received: {deserializedMessage.Content}");
 
+                    // 📝 Log
+                    Console.WriteLine($"📨 Received: {deserializedMessage.Content}");
+
+                    // 📢 Broadcast
                     BroadcastMessage(plainText);
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Client error: {ex.Message}");
+                Console.WriteLine($"❌ Client error: {ex.Message}");
             }
             finally
             {
-                lock (_clients)
-                {
-                    _clients.Remove(_client);
-                }
-                _client.Close();
+                RemoveClient();
             }
         }
 
-        private void BroadcastMessage(string message)
+        private void BroadcastMessage(string plainTextMessage)
         {
-            string encryptedMessage = TCPChatApp.Common.Helpers.EncryptionHelper.Encrypt(message);
+            string encryptedMessage = CryptoHelper.Encrypt(plainTextMessage);
             lock (_clients)
             {
                 foreach (var client in _clients)
                 {
-                    if (client != _client)
+                    if (client == _client) continue; // Skip sender
+
+                    try
                     {
-                        try
+                        // 📤 Send message
+                        var stream = client.GetStream();
+                        using var writer = new StreamWriter(stream, System.Text.Encoding.UTF8, 1024, leaveOpen: true)
                         {
-                            var stream = client.GetStream();
-                            // Use leaveOpen = true to avoid closing the underlying stream
-                            var writer = new StreamWriter(stream, System.Text.Encoding.UTF8, 1024, leaveOpen: true)
-                            {
-                                AutoFlush = true
-                            };
-                            writer.WriteLine(encryptedMessage);
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine($"Error broadcasting message: {ex.Message}");
-                        }
+                            AutoFlush = true
+                        };
+                        writer.WriteLine(encryptedMessage);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"❌ Broadcast error: {ex.Message}");
                     }
                 }
             }
+        }
+
+        private void RemoveClient()
+        {
+            lock (_clients)
+            {
+                _clients.Remove(_client);
+            }
+            _client.Close(); // 👋 Cleanup
         }
     }
 }

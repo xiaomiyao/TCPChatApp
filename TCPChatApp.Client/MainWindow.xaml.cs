@@ -56,7 +56,7 @@ namespace TCPChatApp.Client
                     if (string.IsNullOrEmpty(encryptedMessage)) continue;
 
                     // 🔓 Decrypt
-                    string message = TCPChatApp.Common.Helpers.EncryptionHelper.Decrypt(encryptedMessage);
+                    string message = TCPChatApp.Common.Helpers.CryptoHelper.Decrypt(encryptedMessage);
                     // 🖥️ Update UI
                     Dispatcher.Invoke(() => ChatDisplay.AppendText($"{message}\n"));
                 }
@@ -91,7 +91,7 @@ namespace TCPChatApp.Client
                     // 🔄 Serialize
                     string json = JsonSerializer.Serialize(messageModel);
                     // 🔒 Encrypt
-                    string encrypted = TCPChatApp.Common.Helpers.EncryptionHelper.Encrypt(json);
+                    string encrypted = TCPChatApp.Common.Helpers.CryptoHelper.Encrypt(json);
                     // ✍️ Send
                     _writer.WriteLine(encrypted);
 
