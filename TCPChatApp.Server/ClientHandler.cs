@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
 using TCPChatApp.Common.Helpers;
+using System.Text.Json;
+using TCPChatApp.Common.Models;
 
 namespace TCPChatApp.Server
 {
@@ -32,7 +34,8 @@ namespace TCPChatApp.Server
                         break;
 
                     string plainText = TCPChatApp.Common.Helpers.EncryptionHelper.Decrypt(encryptedMessage);
-                    Console.WriteLine($"Received: {plainText}");
+                    var deserializedMessage = JsonSerializer.Deserialize<Message>(plainText);
+                    Console.WriteLine($"Received: {deserializedMessage.Content}");
 
                     BroadcastMessage(plainText);
                 }
