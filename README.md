@@ -60,6 +60,25 @@
     - `Content` (string)
     - `Timestamp` (DateTime)
 
+### 📝 User Registration & Authentication
+
+- **Registration Message Structure:**  
+  The envelope now supports registration details under the type `"Register"`. Registration messages include a `User` object with a username and a password hash.
+
+- **Server-Side Registration Logic:**  
+  Upon receiving a registration request, the server:
+
+  - Validates that the username and password hash are not empty.
+  - Checks for duplicate usernames in the in-memory store (or database).
+  - Hashes the password securely (to be implemented).
+  - Adds the new user to the store.
+  - Sends an encrypted response (registration successful or failure).
+
+- **Authentication:**  
+  The login mechanism verifies the user’s credentials and opens a chat session on success.
+
+Refer to `ClientHandler.cs` for additional implementation details.
+
 🔐 ## Encryption and Serialization
 
 - **Encryption**: All messages are encrypted before sending and decrypted upon receipt using a shared `CryptoHelper`.

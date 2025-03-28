@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using TCPChatApp.Common.Models;
 
 namespace TCPChatApp.Server
 {
@@ -12,15 +13,18 @@ namespace TCPChatApp.Server
         private bool _isRunning;
         private List<TcpClient> _clients = new List<TcpClient>();
 
+        // 📝 In-memory store for registered users (for testing)
+        public static List<User> RegisteredUsers = new List<User>();
+
         public void Start(int port = 5000)
         {
             _listener = new TcpListener(IPAddress.Any, port);
             _listener.Start();
             _isRunning = true;
 
-            Console.WriteLine($"Server started on port {port}.");
+            Console.WriteLine($"Server started on port {port}."); // 🚀 Server ready
 
-            // Accept clients on a new thread or via async
+            // 🧵 Start accepting clients
             Thread acceptThread = new Thread(AcceptClients);
             acceptThread.Start();
         }
@@ -32,21 +36,21 @@ namespace TCPChatApp.Server
                 try
                 {
                     TcpClient client = _listener.AcceptTcpClient();
-                    Console.WriteLine("New client connected!");
+                    Console.WriteLine("➡️ Client connected!");
 
                     lock (_clients)
                     {
                         _clients.Add(client);
                     }
 
-                    // Hand off client to ClientHandler
+                    // 🔧 Handle client on a new thread
                     var handler = new ClientHandler(client, _clients);
                     Thread clientThread = new Thread(handler.HandleClient);
                     clientThread.Start();
                 }
                 catch (SocketException)
                 {
-                    break;
+                    break; // ❌ Listener stopped
                 }
             }
         }
@@ -54,7 +58,7 @@ namespace TCPChatApp.Server
         public void Stop()
         {
             _isRunning = false;
-            _listener?.Stop();
+            _listener?.Stop(); // 🛑 Stop server
         }
     }
 }
