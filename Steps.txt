@@ -27,24 +27,24 @@
 
 ✅ 6. **Implement User Registration:**
    ✅ 6.1. Create functionality on the server to handle registration requests.  
-       ✅ Define a Registration Message Structure  
+       ✅ Define a Registration Message Structure.  
        ✅ Extend the existing message/envelope models (or create new ones) to include registration details.  
        ✅ Decide on a message type (e.g., "Register") to distinguish registration requests.  
-       ✅ Extend the Server Message Handling  
+       ✅ Extend the Server Message Handling.  
        ✅ In the server’s message loop (e.g., in ClientHandler), add a branch to detect registration messages using the new type.  
        ✅ Deserialize the registration payload into a registration model.  
-       ✅ Implement User Registration Logic  
+       ✅ Implement User Registration Logic.  
        ✅ Validate the received registration details (e.g., check for empty username/password).  
        ✅ Use a secure method (e.g., a hash function) to generate and store the password hash.  
        ✅ Decide where to store the new user (a database or an in-memory list for testing).  
-       ✅ Send an Acknowledgement  
+       ✅ Send an Acknowledgement.  
        ✅ Create and send a response message back to the client indicating registration success or failure.  
        ✅ Ensure this response is appropriately encrypted and serialized.  
        ✅ Log registration attempts and any errors for troubleshooting.  
        ✅ Implement error handling to manage duplicate registrations or malformed data.  
-       ✅ Testing  
-       ✅ Use a client (or unit tests) to send registration requests.  
-       ✅ Verify that new users are stored and the client receives the proper response.
+       ✅ Testing:  
+           ✅ Use a client (or unit tests) to send registration requests.  
+           ✅ Verify that new users are stored and the client receives the proper response.
    ✅ 6.2. Store user information in your database (SQL Server via SSMS) or an in-memory structure for testing.  
    ✅ 6.3. Test registration by sending user details from the client to the server.
 
@@ -53,62 +53,127 @@
    ✅ 7.2. Ensure the client can log in using a username and password.  
    ✅ 7.3. Maintain session state for logged-in users.
 
-8. **Design Contact List Management:**
-   8.1. Decide if contacts will be part of the User model or stored in a separate structure.  
-   8.2. Each user should have a list of contacts (e.g., a list of user IDs).
+8. **Contact List Management**
+8.1. Design  
+   - Decide whether to store contacts in the User model (as a list of contact IDs) or in a separate data structure.  
+   - Document the design choice.
 
-9. **Implement Contact List Functionality:**
-   9.1. Add Contact – allow users to add new contacts.  
-   9.2. Edit Contact – enable renaming or updating contact information.  
-   9.3. Delete Contact – allow removal of contacts.  
-   9.4. Update the client UI (WPF) to support managing contacts.  
-   9.5. Test each operation separately (add, edit, delete).
+8.2. Implement Contact Operations  
+   *Add Contact:*  
+      - Create a method on the server (or in a service) to add a contact.  
+      - Create a corresponding message type (e.g., "AddContact") sent from the client.  
+      - Unit test this method using an in-memory structure.  
+   *Edit Contact:*  
+      - Add functionality to update contact details (e.g., contact name).  
+      - Create a message type ("EditContact") to trigger updates.  
+      - Test the edit operation with unit tests.  
+   *Delete Contact:*  
+      - Add functionality to remove a contact.  
+      - Create a message type ("DeleteContact") to trigger deletion.  
+      - Write tests to verify a contact can be removed.
 
-10. **Implement Direct (One-to-One) Messaging:**
-    10.1. Allow a user to select a contact and send a private message.  
-    10.2. Update the server to route the message to the intended recipient only.  
-    10.3. Test by sending messages between two clients.
+8.3. Update the WPF Client  
+   - Incrementally add UI elements (e.g., list view, form) to manage contacts.  
+   - Test UI operations on each functionality (add, edit, delete).
 
-11. **Implement Group Messaging:**
-    11.1. Implement functionality to create groups (or use broadcast logic for now).  
-    11.2. Allow sending messages to multiple users simultaneously.  
-    11.3. Test group messaging with several clients connected.
+9. **Direct (One-to-One) Messaging**
+9.1. Server Side  
+   - Implement logic to identify the target user ID in the message envelope.  
+   - Update message routing so that the server delivers the message only to the designated recipient.  
+   - Write unit tests for routing logic.
 
-12. **Implement Blacklist Functionality:**
-    12.1. Design a Blacklist Model – add a blacklist property to the User model (e.g., a list of blocked user IDs).  
-    12.2. Add to Blacklist – allow a user to block another user.  
-    12.3. Edit/Delete Blacklist Entries – enable updating or removing blocked users.  
-    12.4. Update the server to check the blacklist before delivering a message.  
-    12.5. Test by blocking a user and verifying that their messages are not delivered.
+9.2. Client Side  
+   - Update UI to allow users to select a contact for private messaging.  
+   - Send a new message type (e.g., "DirectMessage") with target contact info.  
+   - Verify end-to-end messaging between two clients.
 
-13. **Implement User Status Tracking:**
-    13.1. When a user logs in, have the server notify all their contacts that the user is online.  
-    13.2. When a user logs out, notify contacts that the user is offline.  
-    13.3. Update the client UI to display these status changes.  
-    13.4. Test by logging in/out from different clients and checking notifications.
+10. **Group Messaging**
+10.1. Group Creation  
+   - Add basic support to group contacts into a group.  
+   - Either design an explicit “Group” model or reuse broadcast logic with a list of recipient user IDs.  
+   - Write unit tests for group creation and recipient management.
 
-14. **Implement Message History Storage:**
-    14.1. Design a Message model with properties such as sender, recipient, timestamp, and content.  
-    14.2. Plan for storing these messages in your database (SQL Server).  
-    14.3. On the server, save every message to SQL Server (using ADO.NET or an ORM like Entity Framework).  
-    14.4. Create methods to retrieve the conversation history for a specific contact.  
-    14.5. Test by sending messages, then retrieving and displaying the history.
+10.2. Group Message Sending  
+   - Update UI to allow selection of multiple recipients.  
+   - On the server, update routing logic to deliver messages to every selected contact.  
+   - Test with multiple clients connected.
 
-15. **Implement Search Functionality:**
-    15.1. Implement Contact Search – add a search bar in the client to filter contacts by name or a part of the name.  
-    15.2. Implement Message Search by Specific User – allow searching for messages exchanged with a specific user.  
-    15.3. Implement Message Search Across All Users – enable searching through all message histories for a keyword.  
-    15.4. Update the UI to display search results.  
-    15.5. Test both search scenarios to ensure accurate filtering.
+11. **Blacklist Functionality**
+11.1. Design and Model  
+   - Extend the User model to include a blacklist property (list of blocked user IDs).
 
-16. **Final Integration and Testing:**
-    16.1. Run the complete application (server and multiple clients) and test full user flows: registration, login, managing contacts, sending/receiving messages, blacklist, status notifications, message history, and search functionality.  
-    16.2. Enhance the WPF UI with proper data binding and, if desired, adopt the MVVM pattern.  
-    16.3. Add comprehensive error handling and logging on both client and server sides.  
-    16.4. Test robustness by simulating disconnections and errors.
+11.2. Implement Blocking  
+   - Create a new message type (e.g., "AddToBlacklist") and logic on the server to add a user ID to the blacklist.  
+   - Write unit tests to ensure the block operation works.
 
-17. **Documentation and Final Code Review:**
-    17.1. Document your code and overall architecture.  
-    17.2. Prepare a README with instructions on how to build and run the application.  
-    17.3. Conduct a final review and refactor code as needed.
+11.3. Removing/Editing Blacklist  
+   - Add operations for “EditBlacklist” or “RemoveFromBlacklist.”  
+   - Test removal of blacklist entries.
 
+11.4. Enforce Blacklist  
+   - Update messaging logic on the server to check the recipient’s blacklist before delivering the message.  
+   - Write tests to verify that messages from blocked users are not delivered.
+
+12. **User Status Tracking**
+12.1. Notify on Login  
+   - When a user successfully logs in, update the server to notify all contacts (by sending a "UserOnline" message).  
+   - Write tests for offline-to-online transitions.
+
+12.2. Notify on Logout  
+   - Trigger a "UserOffline" notification on logout.  
+   - Ensure that both server and client update the appropriate status.
+
+12.3. Client UI Update  
+   - Update the WPF UI to display status changes for contacts.  
+   - Test with multiple clients to verify notifications are received.
+
+13. **Message History Storage**
+13.1. Design Message Model  
+   - Define properties such as Sender, Recipient, Timestamp, and Content.  
+   - Plan how messages are stored (e.g., SQL Server table structure).
+
+13.2. Implement Storage  
+   - Integrate message logging on the server using ADO.NET or Entity Framework.  
+   - Write unit tests (or integration tests) to verify that sent messages are saved.
+
+13.3. Retrieval  
+   - Create endpoints or methods to retrieve conversation history.  
+   - Test retrieval for specific contact or conversation.
+
+14. **Search Functionality**
+14.1. Contact Search  
+   - Add a search method to the contacts management service to filter contacts by name.  
+   - Incrementally update the UI with a search bar and test filtering.
+
+14.2. Message Search by Specific User  
+   - Create a search endpoint that accepts a username and keyword to filter message history.  
+   - Write tests to verify that only matching messages are returned.
+
+14.3. Global Message Search  
+   - Expand the search capability to scan all messages.  
+   - Ensure that performance remains acceptable and test with sample data.
+
+14.4. UI Integration  
+   - Incrementally update the UI to display search results.  
+   - Verify the UI correctly shows filtered results.
+
+15. **Final Integration and Testing**
+15.1. Integration  
+   - Combine all incremental changes.  
+   - Test full flows: registration, login, contact list updates, one-to-one and group messaging, blacklist enforcement, status tracking, history storage, and search.
+
+15.2. Robustness Testing  
+   - Simulate network failures or disconnections.  
+   - Verify error handling and recovery for each component.
+
+15.3. Logging and Error Handling  
+   - Audit logs on both server and client for detailed error reporting.  
+   - Refine error messages based on test observations.
+
+16. **Documentation and Code Review**
+16.1. Documentation  
+   - Update comments and README documentation to reflect the new functionalities.
+
+16.2. Final Code Review  
+   - Refactor code based on testing feedback.  
+   - Prepare documentation and instructions for deployment and troubleshooting.

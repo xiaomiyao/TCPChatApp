@@ -1,0 +1,19 @@
+Create a chat based on the TCP protocol
+The application should provide the following functionalities:
+a. User registration and authentication: Users must be able to create an account and log in using their username and password.
+b. Contact list: Each user has their own contact list. The chat should allow adding, editing, and deleting contacts.
+c. Messaging: Each user should be able to send messages:
+
+To a single user.
+
+To a group of users.
+d. Blacklist: Each user has their own blacklist. Users on this list cannot send messages to the user. The chat should allow adding, editing, and deleting contacts from the blacklist.
+e. User status tracking: The application should track user status. When a user logs into the chat, a message is sent to all their contacts indicating that the contact has logged in. When a user logs out, a message is sent to all their contacts indicating that the contact has logged out.
+f. Message history: The chat should store the message history for each contact.
+g. Search functionality: The chat should allow:
+
+Finding contacts by name or a part of the name.
+
+Searching for messages from a specific user by entered text.
+
+Searching for messages from all users by entered text.
