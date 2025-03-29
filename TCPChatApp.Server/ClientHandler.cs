@@ -83,6 +83,36 @@ namespace TCPChatApp.Server
                                 }
                             }
                         }
+                        else if (envelope.Type == "Login")
+                        {
+                            Console.WriteLine("🔑 Login request received.");
+
+                            // Validate login details
+                            if (envelope.User == null ||
+                                string.IsNullOrWhiteSpace(envelope.User.Username) ||
+                                string.IsNullOrWhiteSpace(envelope.User.PasswordHash))
+                            {
+                                Console.WriteLine("⚠️ Login failed: invalid user details.");
+                                SendLoginResponse(writer, "Login failed: Invalid user details.");
+                            }
+                            else
+                            {
+                                // Find the registered user
+                                var existingUser = ChatServer.RegisteredUsers
+                                    .FirstOrDefault(u => u.Username.Equals(envelope.User.Username, StringComparison.OrdinalIgnoreCase));
+
+                                if (existingUser != null && existingUser.PasswordHash.Equals(envelope.User.PasswordHash))
+                                {
+                                    Console.WriteLine($"✅ User '{envelope.User.Username}' login successful.");
+                                    SendLoginResponse(writer, "Login successful.");
+                                }
+                                else
+                                {
+                                    Console.WriteLine("⚠️ Login failed: Incorrect username or password.");
+                                    SendLoginResponse(writer, "Login failed: Incorrect username or password.");
+                                }
+                            }
+                        }
                         else
                         {
                             Console.WriteLine("⚠️ Received envelope with unknown type or invalid format.");
@@ -117,6 +147,28 @@ namespace TCPChatApp.Server
             };
 
             // 🔒 Encrypt and send the registration response
+            string jsonResponse = JsonSerializer.Serialize(responseEnvelope);
+            string encryptedResponse = CryptoHelper.Encrypt(jsonResponse);
+            writer.WriteLine(encryptedResponse);
+        }
+
+        /// <summary>
+        /// Sends a login response back to the client.
+        /// </summary>
+        private void SendLoginResponse(StreamWriter writer, string responseMessage)
+        {
+            // 📦 Build response envelope for login
+            var responseEnvelope = new Envelope
+            {
+                Type = "LoginResponse",
+                Message = new Message
+                {
+                    Sender = "Server",
+                    Content = responseMessage
+                }
+            };
+
+            // 🔒 Encrypt and send the login response
             string jsonResponse = JsonSerializer.Serialize(responseEnvelope);
             string encryptedResponse = CryptoHelper.Encrypt(jsonResponse);
             writer.WriteLine(encryptedResponse);

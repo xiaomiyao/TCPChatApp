@@ -23,34 +23,51 @@
    - When a message is received:
      - 🔓 The server decrypts the incoming message.
      - 📨 The decrypted text is deserialized into an `Envelope` object.
-     - 📝 If the envelope type is `"ChatMessage"`, the server logs the sender and content.
-     - 📢 The server then broadcasts the original plain text message (after encryption) to all other clients.
+     - 📝 Depending on the envelope type:
+       - If `"ChatMessage"`, the server logs the sender and content, then broadcasts the message.
+       - If `"Register"`, the server validates and registers a new user.
+       - If `"Login"`, the server validates the user’s credentials and returns a login response.
+       - For unknown types, a warning is logged.
 
 ### 💻 Client Flow
 
 1. **Connection and UI**
 
    - 🌐 The client connects to the server using `TcpClient` (localhost:5000).
-   - 🎨 The UI is started from WPF (`MainWindow.xaml.cs`).
+   - 🎨 The UI is started from WPF (`MainWindow.xaml.cs` and `LoginWindow.xaml.cs`).
 
-2. **Sending Messages**
+2. **Sending Messages & User Authentication**
 
-   - ✍️ The user types a message into the chat input.
-   - 💬 The message is wrapped in a `Message` object and included in an `Envelope`.
+   - ✍️ The user types a message, registration details, or login credentials.
+   - 💬 The message is bundled into a `Message` object and included in an `Envelope`.
    - 🗂️ The envelope is serialized to JSON and encrypted.
    - 📤 The encrypted message is sent to the server.
 
 3. **Receiving Messages**
    - 👂 A background thread listens for incoming messages.
    - 🔍 Each message is read, decrypted, and deserialized into an `Envelope`.
-   - 🖥️ If the envelope type is `"ChatMessage"`, the client displays the sender and message content in the chat window.
-   - 👉 Otherwise, the plain text of the message is displayed.
+   - 🖥️ Depending on the envelope type:
+     - `"ChatMessage"`: The sender and content are displayed in the chat window.
+     - `"RegistrationResponse"` or `"LoginResponse"`: The client displays the corresponding response message.
+     - Otherwise, the plain text is displayed.
+
+### 🛠 Helper Functions & UI Enhancements
+
+- **NetworkHelper (TCPChatApp.Client\Helpers\NetworkHelper.cs):**  
+  This helper function facilitates network communication by encapsulating the logic for connecting to the server, sending an encrypted message, and reading the server's response. It improves code reusability and error handling for the client-side network communication.
+
+- **LoginWindow Updates (TCPChatApp.Client\LoginWindow.xaml.cs):**  
+  The login window now leverages the helper function for sending messages to the server. It processes both registration and login requests by:
+  - Collecting user input.
+  - Creating and encrypting the message envelope.
+  - Sending the encrypted message via the helper.
+  - Decrypting and processing the server response, opening the main chat window upon successful login.
 
 📦 ## Data Models
 
 - **Envelope** ✉️
   - Properties:
-    - `Type` (string): Indicates the type of the message.
+    - `Type` (string): Indicates the type of the message (e.g., `"ChatMessage"`, `"Register"`, `"Login"`, `"RegistrationResponse"`, `"LoginResponse"`).
     - `Message` (`Message`): Contains the chat message details.
     - `User` (optional): Contains user information if needed.
 - **Message** 💬
@@ -64,20 +81,21 @@
 
 - **Registration Message Structure:**  
   The envelope now supports registration details under the type `"Register"`. Registration messages include a `User` object with a username and a password hash.
+- **Login Message Structure:**  
+  The envelope supports login requests under the type `"Login"`. The login message includes a `User` object containing the username and password hash.
 
-- **Server-Side Registration Logic:**  
-  Upon receiving a registration request, the server:
+- **Server-Side Logic for Registration & Login:**  
+  Upon receiving a registration request:
 
   - Validates that the username and password hash are not empty.
-  - Checks for duplicate usernames in the in-memory store (or database).
-  - Hashes the password securely (to be implemented).
-  - Adds the new user to the store.
-  - Sends an encrypted response (registration successful or failure).
+  - Checks for duplicate usernames in the in-memory store.
+  - Adds the new user if valid, returning an encrypted registration response.
 
-- **Authentication:**  
-  The login mechanism verifies the user’s credentials and opens a chat session on success.
+  Upon receiving a login request:
 
-Refer to `ClientHandler.cs` for additional implementation details.
+  - Validates the incoming login details.
+  - Compares the provided credentials against the registered users.
+  - Returns an encrypted login response indicating success or failure.
 
 🔐 ## Encryption and Serialization
 
@@ -87,9 +105,10 @@ Refer to `ClientHandler.cs` for additional implementation details.
 📁 ## File Structure
 
 - **Server**
-  - `TCPChatApp.Server\ClientHandler.cs`: Manages client connections and broadcasts messages.
+  - `TCPChatApp.Server\ClientHandler.cs`: Manages client connections, processes registration and login requests, and broadcasts messages.
 - **Client**
   - `TCPChatApp.Client\MainWindow.xaml.cs`: Contains UI logic for sending and displaying messages.
+  - `TCPChatApp.Client\LoginWindow.xaml.cs`: Handles user login and registration using updated network helper functions.
 - **Common**
   - `TCPChatApp.Common\Models\Envelope.cs`: Defines the `Envelope` structure.
   - `TCPChatApp.Common\Models\Message.cs`: Defines the `Message` structure.
@@ -98,7 +117,7 @@ Refer to `ClientHandler.cs` for additional implementation details.
 
 1. **User Input (Client)** ⌨️
 
-   - Type your message and click send.
+   - Type your message, registration details, or login credentials and click send.
 
 2. **Processing** ⚙️
 
@@ -107,10 +126,10 @@ Refer to `ClientHandler.cs` for additional implementation details.
 
 3. **Transmission** 🚀
 
-   - The encrypted message is sent from the client to the server.
-   - The server decrypts, deserializes, logs, and broadcasts the message to other clients.
+   - The encrypted message is sent from the client to the server using the `NetworkHelper`.
+   - The server decrypts, deserializes, processes, logs, and (if appropriate) broadcasts the message to other clients while sending a response for registration or login requests.
 
 4. **Display (Client)** 👀
    - Clients decrypt received messages.
    - The envelope is deserialized.
-   - The message (sender and content) is displayed in the chat window.
+   - The message (sender and content) or response information is displayed in the chat window.
