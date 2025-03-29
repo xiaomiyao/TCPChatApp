@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using TCPChatApp.Common.Models;
+using TCPChatApp.Server.DataAccess;
 
 namespace TCPChatApp.Server
 {
@@ -13,18 +14,20 @@ namespace TCPChatApp.Server
         private bool _isRunning;
         private List<TcpClient> _clients = new List<TcpClient>();
 
-        // 📝 In-memory store for registered users (for testing)
-        public static List<User> RegisteredUsers = new List<User>();
+        // Remove the in‑memory store and use the repository instead
+        public static UserRepository UserRepo;
 
         public void Start(int port = 5000)
         {
+            // Initialize the repository (update the connection string as needed)
+            UserRepo = new UserRepository("Server=MSI; Database=TCPChatApp; Trusted_Connection=True; Encrypt=True; TrustServerCertificate=True;");
+
             _listener = new TcpListener(IPAddress.Any, port);
             _listener.Start();
             _isRunning = true;
 
-            Console.WriteLine($"Server started on port {port}."); // 🚀 Server ready
+            Console.WriteLine($"Server started on port {port}.");
 
-            // 🧵 Start accepting clients
             Thread acceptThread = new Thread(AcceptClients);
             acceptThread.Start();
         }
@@ -43,14 +46,13 @@ namespace TCPChatApp.Server
                         _clients.Add(client);
                     }
 
-                    // 🔧 Handle client on a new thread
                     var handler = new ClientHandler(client, _clients);
                     Thread clientThread = new Thread(handler.HandleClient);
                     clientThread.Start();
                 }
                 catch (SocketException)
                 {
-                    break; // ❌ Listener stopped
+                    break;
                 }
             }
         }
@@ -58,7 +60,7 @@ namespace TCPChatApp.Server
         public void Stop()
         {
             _isRunning = false;
-            _listener?.Stop(); // 🛑 Stop server
+            _listener?.Stop();
         }
     }
 }

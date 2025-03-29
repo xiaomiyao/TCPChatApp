@@ -65,9 +65,8 @@ namespace TCPChatApp.Server
                             }
                             else
                             {
-                                // Check for duplicate registration
-                                var existingUser = ChatServer.RegisteredUsers
-                                    .FirstOrDefault(u => u.Username.Equals(envelope.User.Username, StringComparison.OrdinalIgnoreCase));
+                                // Use the repository to check for an existing user
+                                var existingUser = ChatServer.UserRepo.GetUserByUsername(envelope.User.Username);
 
                                 if (existingUser != null)
                                 {
@@ -76,10 +75,18 @@ namespace TCPChatApp.Server
                                 }
                                 else
                                 {
-                                    // Add new user to the in-memory store
-                                    ChatServer.RegisteredUsers.Add(envelope.User);
-                                    Console.WriteLine($"✅ User '{envelope.User.Username}' registered successfully.");
-                                    SendRegistrationResponse(writer, "Registration successful.");
+                                    // Add the user to the database
+                                    bool success = ChatServer.UserRepo.AddUser(envelope.User);
+                                    if (success)
+                                    {
+                                        Console.WriteLine($"✅ User '{envelope.User.Username}' registered successfully.");
+                                        SendRegistrationResponse(writer, "Registration successful.");
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine("⚠️ Registration failed: Database error.");
+                                        SendRegistrationResponse(writer, "Registration failed: Database error.");
+                                    }
                                 }
                             }
                         }
@@ -97,9 +104,8 @@ namespace TCPChatApp.Server
                             }
                             else
                             {
-                                // Find the registered user
-                                var existingUser = ChatServer.RegisteredUsers
-                                    .FirstOrDefault(u => u.Username.Equals(envelope.User.Username, StringComparison.OrdinalIgnoreCase));
+                                // Use the repository to retrieve user info
+                                var existingUser = ChatServer.UserRepo.GetUserByUsername(envelope.User.Username);
 
                                 if (existingUser != null && existingUser.PasswordHash.Equals(envelope.User.PasswordHash))
                                 {

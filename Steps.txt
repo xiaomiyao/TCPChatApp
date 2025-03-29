@@ -1,77 +1,66 @@
+✅ 1. **Create a Basic Echo Server:**
+   ✅ 1.1. Set up a TCP listener on a fixed port.  
+   ✅ 1.2. Accept one client connection.  
+   ✅ 1.3. Read a message from the client and echo it back.  
+   ✅ 1.4. Test this using telnet or a simple client.
 
+✅ 2. **Develop a Simple Client:**
+   ✅ 2.1. Create a client (console or WPF) that connects to the echo server.  
+   ✅ 2.2. Send a message from the client.  
+   ✅ 2.3. Listen for and display the echoed message.  
+   ✅ 2.4. Verify the client-server communication works.
 
-1. **Create a Basic Echo Server:**
-   1.1. Set up a TCP listener on a fixed port.  
-   1.2. Accept one client connection.  
-   1.3. Read a message from the client and echo it back.  
-   1.4. Test this using telnet or a simple client.
+✅ 3. **Expand Server to Support Multiple Clients:**
+   ✅ 3.1. Modify the server to accept multiple client connections concurrently.  
+   ✅ 3.2. Maintain a list (e.g., a List<TcpClient>) of all connected clients.  
+   ✅ 3.3. Update the server so that when a message is received, it’s echoed back to all connected clients (broadcasting).
 
-2. **Develop a Simple Client:**
-   2.1. Create a client (console or WPF) that connects to the echo server.  
-   2.2. Send a message from the client.  
-   2.3. Listen for and display the echoed message.  
-   2.4. Verify the client-server communication works.
+✅ 4. **Integrate Message Encryption:**
+   ✅ 4.1. Implement an AES-based encryption helper in your Common library.  
+   ✅ 4.2. Update the client to encrypt messages before sending.  
+   ✅ 4.3. Update the server to decrypt incoming messages and encrypt responses.  
+   ✅ 4.4. Test end-to-end encrypted communication between client and server.
 
-3. **Expand Server to Support Multiple Clients:**
-   3.1. Modify the server to accept multiple client connections concurrently.  
-   3.2. Maintain a list (e.g., a List<TcpClient>) of all connected clients.  
-   3.3. Update the server so that when a message is received, it�s echoed back to all connected clients (broadcasting).
+✅ 5. **Design User Model for Registration and Authentication:**
+   ✅ 5.1. Create a User.cs class with properties such as Id, Username, and PasswordHash.  
+   ✅ 5.2. (Optional) Use a secure method to store passwords (hashing).
 
-4. **Integrate Message Encryption:**
-   4.1. Implement an AES-based encryption helper in your Common library.  
-   4.2. Update the client to encrypt messages before sending.  
-   4.3. Update the server to decrypt incoming messages and encrypt responses.  
-   4.4. Test end-to-end encrypted communication between client and server.
+✅ 6. **Implement User Registration:**
+   ✅ 6.1. Create functionality on the server to handle registration requests.  
+       ✅ Define a Registration Message Structure  
+       ✅ Extend the existing message/envelope models (or create new ones) to include registration details.  
+       ✅ Decide on a message type (e.g., "Register") to distinguish registration requests.  
+       ✅ Extend the Server Message Handling  
+       ✅ In the server’s message loop (e.g., in ClientHandler), add a branch to detect registration messages using the new type.  
+       ✅ Deserialize the registration payload into a registration model.  
+       ✅ Implement User Registration Logic  
+       ✅ Validate the received registration details (e.g., check for empty username/password).  
+       ✅ Use a secure method (e.g., a hash function) to generate and store the password hash.  
+       ✅ Decide where to store the new user (a database or an in-memory list for testing).  
+       ✅ Send an Acknowledgement  
+       ✅ Create and send a response message back to the client indicating registration success or failure.  
+       ✅ Ensure this response is appropriately encrypted and serialized.  
+       ✅ Log registration attempts and any errors for troubleshooting.  
+       ✅ Implement error handling to manage duplicate registrations or malformed data.  
+       ✅ Testing  
+       ✅ Use a client (or unit tests) to send registration requests.  
+       ✅ Verify that new users are stored and the client receives the proper response.
+   ✅ 6.2. Store user information in your database (SQL Server via SSMS) or an in-memory structure for testing.  
+   ✅ 6.3. Test registration by sending user details from the client to the server.
 
-5. **Design User Model for Registration and Authentication:**
-   5.1. Create a User.cs class with properties such as Id, Username, and PasswordHash.  
-   5.2. (Optional) Use a secure method to store passwords (hashing).
-
-6. **Implement User Registration:**
-   6.1. Create functionality on the server to handle registration requests.  
-Define a Registration Message Structure
-
-Extend the existing message/envelope models (or create new ones) to include registration details.
-Decide on a message type (e.g., "Register") to distinguish registration requests.
-Extend the Server Message Handling
-
-In the server’s message loop (e.g., in ClientHandler), add a branch to detect registration messages using the new type.
-Deserialize the registration payload into a registration model.
-Implement User Registration Logic
-
-Validate the received registration details (e.g., check for empty username/password).
-Use a secure method (e.g., a hash function) to generate and store the password hash.
-Decide where to store the new user (a database or an in-memory list for testing).
-Send an Acknowledgement
-
-Create and send a response message back to the client indicating registration success or failure.
-Ensure this response is appropriately encrypted and serialized.
-Log and Handle Errors
-
-Log registration attempts and any errors for troubleshooting.
-Implement error handling to manage duplicate registrations or malformed data.
-Testing
-
-Use a client (or unit tests) to send registration requests.
-Verify that new users are stored and the client receives the proper response.
-
-
-   6.2. Store user information in your database (SQL Server via SSMS) or an in-memory structure for testing.  
-   6.3. Test registration by sending user details from the client to the server.
-
-7. **Implement User Authentication:**
-   7.1. Create a login mechanism on the server that validates credentials.  
-   7.2. Ensure the client can log in using a username and password.  
-   7.3. Maintain session state for logged-in users.
+✅ 7. **Implement User Authentication:**
+   ✅ 7.1. Create a login mechanism on the server that validates credentials.  
+   ✅ 7.2. Ensure the client can log in using a username and password.  
+   ✅ 7.3. Maintain session state for logged-in users.
 
 8. **Design Contact List Management:**
    8.1. Decide if contacts will be part of the User model or stored in a separate structure.  
    8.2. Each user should have a list of contacts (e.g., a list of user IDs).
 
 9. **Implement Contact List Functionality:**
-   9.1. Add Contact � allow users to add new contacts.  
-   9.2. Edit Contact � enable renaming or updating contact information.  
-   9.3. Delete Contact � allow removal of contacts.  
+   9.1. Add Contact – allow users to add new contacts.  
+   9.2. Edit Contact – enable renaming or updating contact information.  
+   9.3. Delete Contact – allow removal of contacts.  
    9.4. Update the client UI (WPF) to support managing contacts.  
    9.5. Test each operation separately (add, edit, delete).
 
@@ -86,9 +75,9 @@ Verify that new users are stored and the client receives the proper response.
     11.3. Test group messaging with several clients connected.
 
 12. **Implement Blacklist Functionality:**
-    12.1. Design a Blacklist Model � add a blacklist property to the User model (e.g., a list of blocked user IDs).  
-    12.2. Add to Blacklist � allow a user to block another user.  
-    12.3. Edit/Delete Blacklist Entries � enable updating or removing blocked users.  
+    12.1. Design a Blacklist Model – add a blacklist property to the User model (e.g., a list of blocked user IDs).  
+    12.2. Add to Blacklist – allow a user to block another user.  
+    12.3. Edit/Delete Blacklist Entries – enable updating or removing blocked users.  
     12.4. Update the server to check the blacklist before delivering a message.  
     12.5. Test by blocking a user and verifying that their messages are not delivered.
 
@@ -106,9 +95,9 @@ Verify that new users are stored and the client receives the proper response.
     14.5. Test by sending messages, then retrieving and displaying the history.
 
 15. **Implement Search Functionality:**
-    15.1. Implement Contact Search � add a search bar in the client to filter contacts by name or a part of the name.  
-    15.2. Implement Message Search by Specific User � allow searching for messages exchanged with a specific user.  
-    15.3. Implement Message Search Across All Users � enable searching through all message histories for a keyword.  
+    15.1. Implement Contact Search – add a search bar in the client to filter contacts by name or a part of the name.  
+    15.2. Implement Message Search by Specific User – allow searching for messages exchanged with a specific user.  
+    15.3. Implement Message Search Across All Users – enable searching through all message histories for a keyword.  
     15.4. Update the UI to display search results.  
     15.5. Test both search scenarios to ensure accurate filtering.
 
