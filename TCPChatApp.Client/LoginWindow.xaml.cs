@@ -1,8 +1,7 @@
 ﻿using System;
-using System.IO;
-using System.Net.Sockets;
 using System.Text.Json;
 using System.Windows;
+using TCPChatApp.Client.Helpers; // Ensure that MessageProcessor is referenced
 using TCPChatApp.Common.Helpers;
 using TCPChatApp.Common.Models;
 
@@ -29,31 +28,16 @@ namespace TCPChatApp.Client
                 User = new User { Username = username, PasswordHash = password } // 💡 Hash it later!
             };
 
-            try
-            {
-                // 🔌 Connect & send
-                using TcpClient client = new TcpClient("127.0.0.1", 5000);
-                using NetworkStream stream = client.GetStream();
-                using var writer = new StreamWriter(stream) { AutoFlush = true };
-                using var reader = new StreamReader(stream);
+            // Serialize and encrypt
+            string encryptedMessage = MessageProcessor.SerializeAndEncrypt(envelope);
 
-                string json = JsonSerializer.Serialize(envelope);
-                string encryptedMessage = CryptoHelper.Encrypt(json);
-                writer.WriteLine(encryptedMessage);
+            // 🔌 Send message
+            string encryptedResponse = NetworkHelper.SendMessageToServer("127.0.0.1", 5000, encryptedMessage);
 
-                // ⏳ Wait & show reply
-                string encryptedResponse = reader.ReadLine();
-                if (!string.IsNullOrEmpty(encryptedResponse))
-                {
-                    string responseJson = CryptoHelper.Decrypt(encryptedResponse);
-                    var responseEnvelope = JsonSerializer.Deserialize<Envelope>(responseJson);
-                    MessageBox.Show(responseEnvelope?.Message?.Content, "Registration", MessageBoxButton.OK, MessageBoxImage.Information);
-                }
-            }
-            catch (Exception ex)
+            if (!string.IsNullOrEmpty(encryptedResponse))
             {
-                // ⚠️ Error
-                MessageBox.Show($"Registration error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                var responseEnvelope = MessageProcessor.DecryptAndDeserialize(encryptedResponse);
+                MessageBox.Show(responseEnvelope?.Message?.Content, "Registration", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
 
@@ -71,45 +55,30 @@ namespace TCPChatApp.Client
                 User = new User { Username = username, PasswordHash = password } // 💡 Hash it later!
             };
 
-            try
+            // Serialize and encrypt
+            string encryptedMessage = MessageProcessor.SerializeAndEncrypt(envelope);
+
+            // 🔌 Send message
+            string encryptedResponse = NetworkHelper.SendMessageToServer("127.0.0.1", 5000, encryptedMessage);
+
+            if (!string.IsNullOrEmpty(encryptedResponse))
             {
-                // 🔌 Connect & send
-                using TcpClient client = new TcpClient("127.0.0.1", 5000);
-                using NetworkStream stream = client.GetStream();
-                using var writer = new StreamWriter(stream) { AutoFlush = true };
-                using var reader = new StreamReader(stream);
+                var responseEnvelope = MessageProcessor.DecryptAndDeserialize(encryptedResponse);
 
-                string json = JsonSerializer.Serialize(envelope);
-                string encryptedMessage = CryptoHelper.Encrypt(json);
-                writer.WriteLine(encryptedMessage);
-
-                // ⏳ Wait
-                string encryptedResponse = reader.ReadLine();
-                if (!string.IsNullOrEmpty(encryptedResponse))
+                // ✅ Success?
+                if (responseEnvelope != null && responseEnvelope.Type == "LoginResponse" &&
+                    responseEnvelope.Message != null && responseEnvelope.Message.Content.Contains("successful"))
                 {
-                    string responseJson = CryptoHelper.Decrypt(encryptedResponse);
-                    var responseEnvelope = JsonSerializer.Deserialize<Envelope>(responseJson);
-
-                    // ✅ Success?
-                    if (responseEnvelope != null && responseEnvelope.Type == "LoginResponse" &&
-                        responseEnvelope.Message != null && responseEnvelope.Message.Content.Contains("successful"))
-                    {
-                        // 🚀 Open chat
-                        MainWindow chatWindow = new MainWindow();
-                        chatWindow.Show();
-                        this.Close();
-                    }
-                    else
-                    {
-                        // ❗ Fail
-                        MessageBox.Show(responseEnvelope?.Message?.Content ?? "Login failed", "Login", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    }
+                    // 🚀 Open chat
+                    MainWindow chatWindow = new MainWindow();
+                    chatWindow.Show();
+                    this.Close();
                 }
-            }
-            catch (Exception ex)
-            {
-                // ⚠️ Error
-                MessageBox.Show($"Login error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                else
+                {
+                    // ❗ Fail
+                    MessageBox.Show(responseEnvelope?.Message?.Content ?? "Login failed", "Login", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
             }
         }
     }
