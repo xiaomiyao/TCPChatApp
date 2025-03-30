@@ -1,10 +1,12 @@
+using System.Net.Sockets;
 using System.Text.Json;
 using TCPChatApp.Common.Helpers;
 using TCPChatApp.Common.Models;
+using TCPChatApp.Server.DataAccess;
 
 namespace TCPChatApp.Server
 {
-    public class AuthenticationHandler
+    public class AuthenticationHandler(ChatServer server, UserRepository userRepo)
     {
         // 🔐 Handle registration logic
         public void HandleRegister(Envelope envelope, StreamWriter writer)
@@ -19,7 +21,7 @@ namespace TCPChatApp.Server
                 return;
             }
 
-            var existingUser = ChatServer.UserRepo.GetUserByUsername(envelope.User.Username);
+            var existingUser = userRepo.GetUserByUsername(envelope.User.Username);
             if (existingUser != null)
             {
                 Console.WriteLine("⚠️ Registration failed: username already exists.");
@@ -27,7 +29,7 @@ namespace TCPChatApp.Server
                 return;
             }
 
-            bool success = ChatServer.UserRepo.AddUser(envelope.User);
+            bool success = userRepo.AddUser(envelope.User);
             if (success)
             {
                 Console.WriteLine($"✅ User '{envelope.User.Username}' registered successfully.");
@@ -53,14 +55,15 @@ namespace TCPChatApp.Server
                 return;
             }
 
-            var existingUser = ChatServer.UserRepo.GetUserByUsername(envelope.User.Username);
+            var existingUser = userRepo.GetUserByUsername(envelope.User.Username);
             if (existingUser != null && existingUser.PasswordHash.Equals(envelope.User.PasswordHash))
             {
-                if (!ChatServer.OnlineUsers.Exists(u => u.Username == envelope.User.Username))
-                    ChatServer.OnlineUsers.Add(envelope.User);
+                if (!server.OnlineUsers.Exists(u => u.Username == envelope.User.Username))
+                    server.OnlineUsers.Add(envelope.User);
 
                 Console.WriteLine($"✅ User '{envelope.User.Username}' login successful.");
                 SendLoginResponse(writer, "Login successful.");
+                server.BroadcastOnlineUsers();
             }
             else
             {
@@ -98,12 +101,12 @@ namespace TCPChatApp.Server
                     Sender = "Server",
                     Content = responseMessage
                 },
-                Users = ChatServer.OnlineUsers
+                Users = server.OnlineUsers
             };
 
             string jsonResponse = JsonSerializer.Serialize(responseEnvelope);
             string encryptedResponse = CryptoHelper.Encrypt(jsonResponse);
-            writer.WriteLine(encryptedResponse);
+            writer.WriteLine(encryptedResponse);        
         }
     }
 }

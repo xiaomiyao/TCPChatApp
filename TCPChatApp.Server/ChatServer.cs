@@ -11,18 +11,20 @@ namespace TCPChatApp.Server
     {
         private TcpListener _listener;
         private bool _isRunning;
-        private List<TcpClient> _clients = new List<TcpClient>();
+        public List<TcpClient> _clients = new List<TcpClient>();
 
         // Use the repository for user data
-        public static UserRepository UserRepo;
+        private UserRepository UserRepo;
+        private AuthenticationHandler AuthHandler;
 
         // New: Persistent online users list
-        public static List<User> OnlineUsers { get; set; } = new List<User>();
+        public List<User> OnlineUsers { get; set; } = new List<User>();
 
         public void Start(int port = 5000)
         {
             // Initialize the repository (update the connection string as needed)
             UserRepo = new UserRepository("Server=MSI; Database=TCPChatApp; Trusted_Connection=True; Encrypt=True; TrustServerCertificate=True;");
+            AuthHandler = new AuthenticationHandler(this, UserRepo);
 
             _listener = new TcpListener(IPAddress.Any, port);
             _listener.Start();
@@ -48,7 +50,7 @@ namespace TCPChatApp.Server
                         _clients.Add(client);
                     }
 
-                    var handler = new ClientHandler(client, _clients);
+                    var handler = new ClientHandler(client, _clients, AuthHandler);
                     Thread clientThread = new Thread(handler.HandleClient);
                     clientThread.Start();
                 }
@@ -66,7 +68,7 @@ namespace TCPChatApp.Server
         }
 
         // New: Broadcast the latest online users list to all connected clients
-        public static void BroadcastOnlineUsers(List<TcpClient> clients)
+        public void BroadcastOnlineUsers()
         {
             var envelope = new Envelope
             {
@@ -77,9 +79,9 @@ namespace TCPChatApp.Server
             string json = JsonSerializer.Serialize(envelope);
             string encryptedMessage = CryptoHelper.Encrypt(json);
 
-            lock (clients)
+            lock (_clients)
             {
-                foreach (var client in clients)
+                foreach (var client in _clients)
                 {
                     try
                     {

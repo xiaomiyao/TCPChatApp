@@ -11,12 +11,14 @@ namespace TCPChatApp.Server
         private readonly List<TcpClient> _clients;
         private readonly AuthenticationHandler _authHandler;
 
-        public ClientHandler(TcpClient client, List<TcpClient> clients)
+        public ClientHandler(TcpClient client, List<TcpClient> clients, AuthenticationHandler authHandler)
         {
             _client = client;
             _clients = clients;
-            _authHandler = new AuthenticationHandler();
+            _authHandler = authHandler;
         }
+
+        public List<TcpClient> Clients { get; }
 
         public void HandleClient()
         {
