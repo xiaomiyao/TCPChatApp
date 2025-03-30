@@ -1,4 +1,3 @@
-using System.Net.Sockets;
 using System.Text.Json;
 using TCPChatApp.Common.Helpers;
 using TCPChatApp.Common.Models;
@@ -6,9 +5,9 @@ using TCPChatApp.Server.DataAccess;
 
 namespace TCPChatApp.Server
 {
-    public class AuthenticationHandler(ChatServer server, UserRepository userRepo)
+    public class AuthenticationHandler(UserRepository userRepo, ClientCoordinator coordinator)
     {
-        // 🔐 Handle registration logic
+        // 🔐 Process new user registration
         public void HandleRegister(Envelope envelope, StreamWriter writer)
         {
             Console.WriteLine("🔐 Registration request received.");
@@ -42,8 +41,8 @@ namespace TCPChatApp.Server
             }
         }
 
-        // 🔑 Handle login logic
-        public void HandleLogin(Envelope envelope, StreamWriter writer)
+        // 🔑 Process user login attempts
+        public User? HandleLogin(Envelope envelope, StreamWriter writer)
         {
             Console.WriteLine("🔑 Login request received.");
             if (envelope.User == null ||
@@ -52,27 +51,26 @@ namespace TCPChatApp.Server
             {
                 Console.WriteLine("⚠️ Login failed: invalid user details.");
                 SendLoginResponse(writer, "Login failed: Invalid user details.");
-                return;
+                return null;
             }
 
             var existingUser = userRepo.GetUserByUsername(envelope.User.Username);
             if (existingUser != null && existingUser.PasswordHash.Equals(envelope.User.PasswordHash))
             {
-                if (!server.OnlineUsers.Exists(u => u.Username == envelope.User.Username))
-                    server.OnlineUsers.Add(envelope.User);
-
                 Console.WriteLine($"✅ User '{envelope.User.Username}' login successful.");
                 SendLoginResponse(writer, "Login successful.");
-                server.BroadcastOnlineUsers();
+                coordinator.BroadcastOnlineUsers();
+                return envelope.User;
             }
             else
             {
                 Console.WriteLine("⚠️ Login failed: Incorrect username or password.");
                 SendLoginResponse(writer, "Login failed: Incorrect username or password.");
+                return null;
             }
         }
 
-        // 💌 Send registration response back to the client
+        // 💌 Send registration result to client
         private void SendRegistrationResponse(StreamWriter writer, string responseMessage)
         {
             var responseEnvelope = new Envelope
@@ -90,7 +88,7 @@ namespace TCPChatApp.Server
             writer.WriteLine(encryptedResponse);
         }
 
-        // 💌 Send login response back to the client
+        // 💌 Send login result to client
         private void SendLoginResponse(StreamWriter writer, string responseMessage)
         {
             var responseEnvelope = new Envelope
@@ -101,7 +99,7 @@ namespace TCPChatApp.Server
                     Sender = "Server",
                     Content = responseMessage
                 },
-                Users = server.OnlineUsers
+                Users = coordinator.GetOnlineUsers()
             };
 
             string jsonResponse = JsonSerializer.Serialize(responseEnvelope);

@@ -1,33 +1,38 @@
 🚀 # TCP Chat App
 
 😊 ## Overview  
-💡 This TCP-based chat application consists of a server and a client. The server listens on port 5000 for incoming connections and broadcasts messages to all connected clients (except the sender). The client connects to the server and provides a simple UI for sending and receiving chat messages.
+💡 This TCP-based chat application consists of a server and a client, using dependency injection and a coordinator pattern for improved scalability. The server uses a ClientCoordinator to manage connections and broadcasts messages to all connected clients (except the sender). 
 
 🔄 ## Application Flows
 
 ### 🚀 Server Flow
 
 1. **Initialization**
+   - 🔧 Uses dependency injection for better service management
+   - 🔌 Server starts on port 5000
+   - 👂 Listens for and accepts client connections
+   - 💾 Uses SQL Server database through `UserRepository`
 
-   - 🔌 Server starts on port 5000.
-   - 👂 Listens for and accepts client connections.
-   - 💾 **Database Integration:** The server now uses a SQL Server database through a `UserRepository` for secure user storage. 🗄️
+2. **Client Coordination**
+   - 🎯 New `ClientCoordinator` class manages all client connections
+   - 📊 Maintains thread-safe list of connected clients
+   - 🔄 Handles client addition/removal
+   - 📢 Manages broadcasting messages and online user updates
 
-2. **Handling Clients**
+3. **Client Handling**
+   - For each new client connection:
+     - 📡 Creates `ClientHandler` with injected dependencies
+     - ➕ Adds client to coordinator
+     - 🧵 Spawns dedicated message handling thread
+     - 👤 Tracks user authentication state
 
-   - For every new client connection:
-     - 📡 A `ClientHandler` is created.
-     - ➕ The client is added to the server’s client list.
-     - 🧵 A dedicated thread listens for messages from that client.
-     - 🔥 Improved thread handling and error logging have been implemented.
-
-3. **Message Handling**
-   - When a message is received:
-     - 🔓 The server uses the `MessageProcessor` to decrypt and deserialize the incoming message.
-     - 📨 The `ClientHandler` now delegates:
-       - **Chat messages** to `ChatMessageHandler` for logging and broadcasting.
-       - **Registration requests** to `AuthenticationHandler` for validating and storing user info via `UserRepository`.
-       - **Login requests** to `AuthenticationHandler` for credential validation and updating the online users list.
+4. **Message Processing**
+   - When a message arrives:
+     - 🔓 Decrypts and deserializes via `MessageProcessor`
+     - 📨 Routes to appropriate handler:
+       - `ChatMessageHandler`: For chat messages
+       - `AuthenticationHandler`: For login/registration
+     - 📢 Broadcasts responses through `ClientCoordinator`
 
 ### 💻 Client Flow
 
@@ -38,13 +43,13 @@
    - The online users list is updated in the chat window upon successful login.
    - Enhanced UI responsiveness and error handling have been added 👍.
 
-2. **Sending Messages & User Authentication**
+2. **Sending Messages, Authentication & Private Messaging**
 
-   - ✍️ The user types a message, registration details, or login credentials.
-   - 💬 The message is bundled into a `Message` object and included in an `Envelope`.
-   - 🗂️ The envelope is serialized to JSON and encrypted.
-   - 📤 The encrypted message is sent to the server using the helper function in `NetworkHelper`.
-   - 🚀 New encryption flows ensure that all messages are securely transmitted.
+   - **Public Chat:** The user types a message into the main input field and clicks **Send**. The message is bundled into a `Message` object (with `"Everyone"` as the recipient), encrypted, and sent to the server.
+   - **Private Messaging:**  
+     Right-clicking on an online user displays a context menu. Selecting **Message User** opens a dedicated input window where the user can type a private message.  
+     The private message sending logic (mirroring public message flow) sets the recipient to the target username. This ensures that private messages are delivered only to the intended recipient.
+   - 💬 Both public and private messages are encrypted via the `CryptoHelper` before being sent to the server.
 
 3. **Receiving Messages**
    - 👂 A background thread listens for incoming messages.
@@ -94,15 +99,6 @@
     - `ContactName` (string): The display name for the contact.
     - `AddedDate` (`DateTime`): The date the contact was added.
 
-##- **Contact** 📇
-
-- Properties:
-  - `Id` (int)
-  - `OwnerUserId` (`Guid`): The ID of the user who owns the contact.
-  - `ContactUserId` (`Guid`): The ID of the contact user.
-  - `ContactName` (string): The display name for the contact.
-  - `AddedDate` (`DateTime`): The date the contact was added.
-
 # 📝 User Registration & Authentication
 
 - **Registration Message Structure:**  
@@ -117,8 +113,8 @@
 
 🔐 ## Encryption and Serialization
 
-- **Encryption**: All messages are encrypted and decrypted using the `CryptoHelper`, while the `MessageProcessor` handles serialization and deserialization. 🔒
-- **Serialization**: Messages are serialized to JSON for transport between client and server. ✨
+- **Encryption:** All messages are encrypted and decrypted using the `CryptoHelper`, while the `MessageProcessor` handles serialization and deserialization. 🔒
+- **Serialization:** Messages are serialized to JSON for transport between client and server. ✨
 
 📁 ## File Structure
 
@@ -128,7 +124,7 @@
   - `TCPChatApp.Server\ChatMessageHandler.cs`: Handles chat message logging and broadcasting.
   - `TCPChatApp.Server\DataAccess\UserRepository.cs`: Provides methods to retrieve and store user data in SQL Server.
 - **Client**
-  - `TCPChatApp.Client\MainWindow.xaml.cs`: Contains UI logic for sending and displaying messages.
+  - `TCPChatApp.Client\MainWindow.xaml.cs`: Contains UI logic for sending and displaying messages, including support for private (one-to-one) messaging via a dedicated input dialog.
   - `TCPChatApp.Client\LoginWindow.xaml.cs`: Handles user login and registration using updated network helper functions.
 - **Common**
   - `TCPChatApp.Common\Models\Envelope.cs`: Defines the `Envelope` structure.
@@ -139,6 +135,7 @@
 1. **User Input (Client)** ⌨️
 
    - Type your message, registration details, or login credentials and click send.
+   - For private messages, right-click an online user to open the private messaging window, type your message, then click **Send**.
 
 2. **Processing** ⚙️
 
@@ -154,5 +151,36 @@
    - Clients decrypt received messages.
    - The envelope is deserialized.
    - The message (sender and content), registration response, or login response (with the updated online users list) is displayed in the UI.
+
+### 🛠 Components
+
+**New Components:**
+
+- **ClientCoordinator:**
+  - 👥 Manages connected clients list
+  - 🔒 Thread-safe client operations
+  - 📢 Handles message broadcasting
+  - 👤 Tracks online users
+
+- **ChatMessageHandler:**
+  - 📨 Processes chat messages
+  - 🔄 Works with coordinator for broadcasting
+
+- **AuthenticationHandler:**
+  - 🔑 Handles login/registration
+  - 🔐 Password verification
+  - 👥 Updates online users list
+
+**Updated Components:**
+
+- **ChatServer:**
+  - 💉 Uses dependency injection
+  - 🎯 Delegates client management to coordinator
+  - 🧩 Reduced responsibilities
+
+- **ClientHandler:**
+  - 🔌 Focuses on connection management
+  - 📡 Uses injected services
+  - 👤 Tracks user state
 
 ✨ Happy coding and enjoy the new enhancements! ✨

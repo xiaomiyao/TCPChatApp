@@ -4,21 +4,13 @@ using TCPChatApp.Common.Models;
 
 namespace TCPChatApp.Server
 {
-    public class ClientHandler
+    public class ClientHandler(TcpClient client, AuthenticationHandler authHandler, ChatMessageHandler chatMessageHandler, ClientCoordinator coordinator)
     {
+
         // 🔌 Connection objects
-        private readonly TcpClient _client;
-        private readonly List<TcpClient> _clients;
-        private readonly AuthenticationHandler _authHandler;
+        public readonly TcpClient _client = client;
 
-        public ClientHandler(TcpClient client, List<TcpClient> clients, AuthenticationHandler authHandler)
-        {
-            _client = client;
-            _clients = clients;
-            _authHandler = authHandler;
-        }
-
-        public List<TcpClient> Clients { get; }
+        public User? user { get; private set; }
 
         public void HandleClient()
         {
@@ -56,13 +48,13 @@ namespace TCPChatApp.Server
             switch (envelope?.Type)
             {
                 case "ChatMessage":
-                    new ChatMessageHandler(_client, _clients).HandleChatMessage(envelope);
+                    chatMessageHandler.HandleChatMessage(this, envelope);
                     break;
                 case "Register":
-                    _authHandler.HandleRegister(envelope, writer);
+                    authHandler.HandleRegister(envelope, writer);
                     break;
                 case "Login":
-                    _authHandler.HandleLogin(envelope, writer);
+                    user = authHandler.HandleLogin(envelope, writer);
                     break;
                 default:
                     // Optionally handle unknown message types
@@ -72,10 +64,7 @@ namespace TCPChatApp.Server
 
         private void RemoveClient()
         {
-            lock (_clients)
-            {
-                _clients.Remove(_client);
-            }
+            coordinator.RemoveClient(this);
             _client.Close();
         }
     }

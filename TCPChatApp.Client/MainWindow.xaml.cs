@@ -3,6 +3,9 @@ using System.IO;
 using System.Net.Sockets;
 using System.Text.Json;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Threading;
+using System.Windows.Input;
 
 namespace TCPChatApp.Client
 {
@@ -21,7 +24,6 @@ namespace TCPChatApp.Client
             InitializeComponent();
             // 🌐 Connect to server
             ConnectToServer();
-
         }
 
         private void ConnectToServer()
@@ -139,6 +141,87 @@ namespace TCPChatApp.Client
             {
                 // ❌ Send error
                 MessageBox.Show($"Error sending message: {ex.Message}");
+            }
+        }
+
+        private string GetSelectedUsername(object sender)
+        {
+            var menuItem = sender as MenuItem;
+            if (menuItem?.Parent is ContextMenu contextMenu &&
+                contextMenu.PlacementTarget is ListBoxItem listBoxItem)
+            {
+                return listBoxItem.Content?.ToString();
+            }
+            return null;
+        }
+
+        private void MessageUser_Click(object sender, RoutedEventArgs e)
+        {
+            string username = GetSelectedUsername(sender);
+            if (!string.IsNullOrEmpty(username))
+            {
+                var msgWindow = new MessageUserWindow(username) { Owner = this };
+                if (msgWindow.ShowDialog() == true)
+                {
+                    // The user clicked Send. Get the entered text.
+                    string messageToSend = msgWindow.MessageText;
+
+                    // 📨 Create private message
+                    var messageModel = new Message
+                    {
+                        Sender = "Client",
+                        Recipient = username,
+                        Content = messageToSend,
+                        Timestamp = DateTime.Now
+                    };
+
+                    // 📬 Create envelope
+                    var envelope = new Envelope
+                    {
+                        Type = "ChatMessage",
+                        Message = messageModel,
+                        User = null // Optional: Add user info if needed
+                    };
+
+                    // 🔄 Serialize
+                    string json = JsonSerializer.Serialize(envelope);
+                    // 🔒 Encrypt
+                    string encrypted = TCPChatApp.Common.Helpers.CryptoHelper.Encrypt(json);
+                    // ✍️ Send
+                    _writer.WriteLine(encrypted);
+
+                    // Update UI: Display the sent message with recipient info
+                    Dispatcher.Invoke(() => ChatDisplay.AppendText($"You to {username}: {messageToSend}\n"));
+                }
+            }
+        }
+
+        private void AddUser_Click(object sender, RoutedEventArgs e)
+        {
+            string username = GetSelectedUsername(sender);
+            if (!string.IsNullOrEmpty(username))
+            {
+                MessageBox.Show($"Adding {username} as a user");
+                // TODO: add code to add the user to a friend list or similar functionality
+            }
+        }
+
+        private void BlockUser_Click(object sender, RoutedEventArgs e)
+        {
+            string username = GetSelectedUsername(sender);
+            if (!string.IsNullOrEmpty(username))
+            {
+                MessageBox.Show($"Blocking {username}");
+                // TODO: add code to block the user so that messages are ignored
+            }
+        }
+
+        private void ListBoxItem_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var listBoxItem = sender as ListBoxItem;
+            if (listBoxItem != null)
+            {
+                listBoxItem.IsSelected = true;
             }
         }
     }

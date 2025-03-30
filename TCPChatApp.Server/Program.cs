@@ -1,12 +1,19 @@
-﻿namespace TCPChatApp.Server
+﻿using Microsoft.Extensions.DependencyInjection;
+using TCPChatApp.Server.DataAccess;
+
+namespace TCPChatApp.Server
 {
     internal static class Program
     {
         private static void Main()
         {
-            Console.WriteLine("Starting TCP Chat Server...");
+            var serviceCollection = new ServiceCollection();
+            ConfigureServices(serviceCollection);
 
-            var server = new ChatServer();
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            var server = serviceProvider.GetRequiredService<ChatServer>();
+            Console.WriteLine("Starting TCP Chat Server...");
             server.Start();
 
             Console.WriteLine("Server is running. Press any key to stop...");
@@ -14,6 +21,18 @@
 
             server.Stop();
             Console.WriteLine("Server stopped.");
+        }
+
+        private static void ConfigureServices(IServiceCollection services)
+        {
+            services.AddSingleton(provider =>
+                new UserRepository("Server=MSI; Database=TCPChatApp; Trusted_Connection=True; Encrypt=True; TrustServerCertificate=True;"));
+
+            services.AddSingleton<ChatServer>();
+            services.AddSingleton<ClientCoordinator>();
+            services.AddSingleton<ChatMessageHandler>();
+            services.AddSingleton<AuthenticationHandler>();
+
         }
     }
 }
