@@ -35,9 +35,10 @@
 
 1. **Connection and UI**
 
-   - 🌐 The client connects to the server using `TcpClient` (localhost:5000).
-   - 🎨 The UI is started from WPF (`MainWindow.xaml.cs` and `LoginWindow.xaml.cs`).
-   - ✨ Enhanced UI responsiveness and error handling have been added.
+   - The client connects to the server using `TcpClient` (127.0.0.1:5000) with robust error handling 🚀.
+   - The UI is started from WPF (`MainWindow.xaml.cs` and `LoginWindow.xaml.cs`).
+   - **Online Users Stub:** Upon connection, the client displays a simulated list of online users (Alice, Bob, Charlie) via a stub implementation 🎉.
+   - Enhanced UI responsiveness and error handling have been added 👍.
 
 2. **Sending Messages & User Authentication**
 

@@ -3,6 +3,8 @@ using System.IO;
 using System.Net.Sockets;
 using System.Text.Json;
 using System.Windows;
+using System.Threading;
+using System.Collections.Generic;
 
 namespace TCPChatApp.Client
 {
@@ -21,6 +23,9 @@ namespace TCPChatApp.Client
             InitializeComponent();
             // 🌐 Connect to server
             ConnectToServer();
+
+            // ⭐ Display online users stub
+            DisplayOnlineUsersStub();
         }
 
         private void ConnectToServer()
@@ -123,6 +128,28 @@ namespace TCPChatApp.Client
                 // ❌ Send error
                 MessageBox.Show($"Error sending message: {ex.Message}");
             }
+        }
+
+        // ⭐ Stub: simulate displaying online users from a server response
+        private void DisplayOnlineUsersStub()
+        {
+            // Simulate online users list
+            List<User> onlineUsers = new List<User>
+            {
+                new User { Username = "Alice" },
+                new User { Username = "Bob" },
+                new User { Username = "Charlie" }
+            };
+
+            // Update the UI on the dispatcher
+            Dispatcher.Invoke(() =>
+            {
+                OnlineUsersList.Items.Clear();
+                foreach (var user in onlineUsers)
+                {
+                    OnlineUsersList.Items.Add(user.Username);
+                }
+            });
         }
     }
 }

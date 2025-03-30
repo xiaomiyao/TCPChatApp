@@ -9,26 +9,37 @@
         Height="450"
         Width="800">
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        <TextBox x:Name="ChatDisplay"
-                 Grid.Row="0"
-                 Margin="10"
-                 IsReadOnly="True"
-                 VerticalScrollBarVisibility="Auto"
-                 TextWrapping="Wrap"/>
-        <StackPanel Grid.Row="1"
-                    Orientation="Horizontal"
-                    Margin="10">
-            <TextBox x:Name="MessageInput"
-                     Width="600"
-                     Margin="0,0,10,0"/>
-            <Button x:Name="SendButton"
-                    Content="Send"
-                    Width="100"
-                    Click="SendButton_Click"/>
-        </StackPanel>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="200"/>
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <TextBox x:Name="ChatDisplay"
+                     Grid.Row="0"
+                     Margin="10"
+                     IsReadOnly="True"
+                     VerticalScrollBarVisibility="Auto"
+                     TextWrapping="Wrap"/>
+            <StackPanel Grid.Row="1"
+                        Orientation="Horizontal"
+                        Margin="10">
+                <TextBox x:Name="MessageInput"
+                         Width="600"
+                         Margin="0,0,10,0"/>
+                <Button x:Name="SendButton"
+                        Content="Send"
+                        Width="100"
+                        Click="SendButton_Click"/>
+            </StackPanel>
+        </Grid>
+        <GroupBox Header="Online Users"
+                  Grid.Column="1"
+                  Margin="10">
+            <ListBox x:Name="OnlineUsersList"/>
+        </GroupBox>
     </Grid>
 </Window>
