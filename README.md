@@ -81,6 +81,18 @@
     - `Recipient` (string)
     - `Content` (string)
     - `Timestamp` (DateTime)
+- **User** 👤
+  - Properties:
+    - `Id` (`Guid`): Uniquely identifies the user.
+    - `Username` (string)
+    - `PasswordHash` (string)
+- **Contact** 📇
+  - Properties:
+    - `Id` (int)
+    - `OwnerUserId` (`Guid`): The ID of the user who owns the contact.
+    - `ContactUserId` (`Guid`): The ID of the contact user.
+    - `ContactName` (string): The display name for the contact.
+    - `AddedDate` (`DateTime`): The date the contact was added.
 
 ### 📝 User Registration & Authentication
 

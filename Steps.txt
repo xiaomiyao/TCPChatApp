@@ -53,16 +53,15 @@
    ✅ 7.2. Ensure the client can log in using a username and password.  
    ✅ 7.3. Maintain session state for logged-in users.
 
-8. **Contact List Management**
-8.1. Design  
+✅ 8. **Contact List Management**
+✅ 8.1. Design  
    - Decide whether to store contacts in the User model (as a list of contact IDs) or in a separate data structure.  
    - Document the design choice.
 
 8.2. Implement Contact Operations  
    *Add Contact:*  
       - Create a method on the server (or in a service) to add a contact.  
-      - Create a corresponding message type (e.g., "AddContact") sent from the client.  
-      - Unit test this method using an in-memory structure.  
+      - Create a corresponding message type (e.g., "AddContact") sent from the client.    
    *Edit Contact:*  
       - Add functionality to update contact details (e.g., contact name).  
       - Create a message type ("EditContact") to trigger updates.  
