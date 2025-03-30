@@ -1,5 +1,3 @@
-using System;
-
 namespace TCPChatApp.Models
 {
     public class Contact

@@ -3,8 +3,6 @@ using System.IO;
 using System.Net.Sockets;
 using System.Text.Json;
 using System.Windows;
-using System.Threading;
-using System.Collections.Generic;
 
 namespace TCPChatApp.Client
 {
@@ -76,7 +74,7 @@ namespace TCPChatApp.Client
                     else
                     {
                         // If envelope is null or not recognized, display the plain text
-                        Dispatcher.Invoke(() => ChatDisplay.AppendText($"{plainText}\n"));
+                        Dispatcher.Invoke(() => ChatDisplay.AppendText($"error, received: {plainText}\n"));
                     }
                 }
             }

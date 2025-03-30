@@ -23,13 +23,11 @@
 
 3. **Message Handling**
    - When a message is received:
-     - 🔓 The server decrypts the incoming message.
-     - 📨 The decrypted text is deserialized into an `Envelope` object.
-     - 📝 Depending on the envelope type:
-       - If `"ChatMessage"`, the server logs the sender and content, then broadcasts the message.
-       - If `"Register"`, the server validates and registers a new user using the SQL database (via `UserRepository`). ✅
-       - If `"Login"`, the server validates the user’s credentials against the database and returns a login response that now includes the current online users list. 🔑
-       - For unknown types, a warning is logged. ⚠️
+     - 🔓 The server uses the `MessageProcessor` to decrypt and deserialize the incoming message.
+     - 📨 The `ClientHandler` now delegates:
+       - **Chat messages** to `ChatMessageHandler` for logging and broadcasting.
+       - **Registration requests** to `AuthenticationHandler` for validating and storing user info via `UserRepository`.
+       - **Login requests** to `AuthenticationHandler` for credential validation and updating the online users list.
 
 ### 💻 Client Flow
 
@@ -45,7 +43,7 @@
    - ✍️ The user types a message, registration details, or login credentials.
    - 💬 The message is bundled into a `Message` object and included in an `Envelope`.
    - 🗂️ The envelope is serialized to JSON and encrypted.
-   - 📤 The encrypted message is sent to the server.
+   - 📤 The encrypted message is sent to the server using the helper function in `NetworkHelper`.
    - 🚀 New encryption flows ensure that all messages are securely transmitted.
 
 3. **Receiving Messages**
@@ -119,15 +117,16 @@
 
 🔐 ## Encryption and Serialization
 
-- **Encryption**: All messages are encrypted using an AES-based helper (`CryptoHelper`), ensuring safe transmission between client and server. 🔒
+- **Encryption**: All messages are encrypted and decrypted using the `CryptoHelper`, while the `MessageProcessor` handles serialization and deserialization. 🔒
 - **Serialization**: Messages are serialized to JSON for transport between client and server. ✨
 
 📁 ## File Structure
 
 - **Server**
-  - `TCPChatApp.Server\ClientHandler.cs`: Manages client connections, processes registration and login requests (now backed by a SQL database), and broadcasts messages.
-  - `TCPChatApp.Server\ChatServer.cs`: Initializes the server and repository, accepts clients, handles communication, and broadcasts the latest online users list.
-  - `TCPChatApp.Server\DataAccess\UserRepository.cs`: Provides methods to retrieve and store user data in SQL Server. 💾
+  - `TCPChatApp.Server\ClientHandler.cs`: Manages client connections. The message processing logic now leverages `MessageProcessor` to decrypt incoming messages and delegates authentication to `AuthenticationHandler` and chat message handling to `ChatMessageHandler`.
+  - `TCPChatApp.Server\AuthenticationHandler.cs`: Handles registration and login logic separately from the client connection logic.
+  - `TCPChatApp.Server\ChatMessageHandler.cs`: Handles chat message logging and broadcasting.
+  - `TCPChatApp.Server\DataAccess\UserRepository.cs`: Provides methods to retrieve and store user data in SQL Server.
 - **Client**
   - `TCPChatApp.Client\MainWindow.xaml.cs`: Contains UI logic for sending and displaying messages.
   - `TCPChatApp.Client\LoginWindow.xaml.cs`: Handles user login and registration using updated network helper functions.
@@ -149,8 +148,7 @@
 3. **Transmission** 🚀
 
    - The encrypted message is sent from the client to the server using the `NetworkHelper`.
-   - The server decrypts, deserializes, processes, logs, and (if appropriate) broadcasts the message to other clients while sending a response for registration or login requests.
-   - For login requests, the server response includes the current online users list.
+   - On the server side, the `MessageProcessor` is used for all encryption/decryption, and the response (including updated online users list for login) is sent back accordingly.
 
 4. **Display (Client)** 👀
    - Clients decrypt received messages.

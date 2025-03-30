@@ -1,7 +1,5 @@
-﻿using System;
-using System.Text.Json;
-using System.Windows;
-using TCPChatApp.Client.Helpers; // Ensure that MessageProcessor is referenced
+﻿using System.Windows;
+using TCPChatApp.Client.Helpers;
 using TCPChatApp.Common.Helpers;
 using TCPChatApp.Common.Models;
 
