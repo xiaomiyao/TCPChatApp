@@ -24,8 +24,6 @@ namespace TCPChatApp.Client
             // 🌐 Connect to server
             ConnectToServer();
 
-            // ⭐ Display online users stub
-            DisplayOnlineUsersStub();
         }
 
         private void ConnectToServer()
@@ -71,9 +69,13 @@ namespace TCPChatApp.Client
                         string displayText = $"{envelope.Message.Sender}: {envelope.Message.Content}";
                         Dispatcher.Invoke(() => ChatDisplay.AppendText($"{displayText}\n"));
                     }
+                    else if (envelope != null && envelope.Type == "OnlineUsers")
+                    {
+                        UpdateOnlineUsersList(envelope.Users);
+                    }
                     else
                     {
-                        // If envelope is null or not a ChatMessage, display the plain text
+                        // If envelope is null or not recognized, display the plain text
                         Dispatcher.Invoke(() => ChatDisplay.AppendText($"{plainText}\n"));
                     }
                 }
@@ -83,6 +85,18 @@ namespace TCPChatApp.Client
                 // ❌ Receive error
                 Dispatcher.Invoke(() => MessageBox.Show($"Error receiving message: {ex.Message}"));
             }
+        }
+
+        public void UpdateOnlineUsersList(List<User> users)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                OnlineUsersList.Items.Clear();
+                foreach (var user in users)
+                {
+                    OnlineUsersList.Items.Add(user.Username);
+                }
+            });
         }
 
         private void SendButton_Click(object sender, RoutedEventArgs e)
@@ -128,28 +142,6 @@ namespace TCPChatApp.Client
                 // ❌ Send error
                 MessageBox.Show($"Error sending message: {ex.Message}");
             }
-        }
-
-        // ⭐ Stub: simulate displaying online users from a server response
-        private void DisplayOnlineUsersStub()
-        {
-            // Simulate online users list
-            List<User> onlineUsers = new List<User>
-            {
-                new User { Username = "Alice" },
-                new User { Username = "Bob" },
-                new User { Username = "Charlie" }
-            };
-
-            // Update the UI on the dispatcher
-            Dispatcher.Invoke(() =>
-            {
-                OnlineUsersList.Items.Clear();
-                foreach (var user in onlineUsers)
-                {
-                    OnlineUsersList.Items.Add(user.Username);
-                }
-            });
         }
     }
 }

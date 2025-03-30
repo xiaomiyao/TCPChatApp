@@ -28,7 +28,7 @@
      - 📝 Depending on the envelope type:
        - If `"ChatMessage"`, the server logs the sender and content, then broadcasts the message.
        - If `"Register"`, the server validates and registers a new user using the SQL database (via `UserRepository`). ✅
-       - If `"Login"`, the server validates the user’s credentials against the database and returns a login response. 🔑
+       - If `"Login"`, the server validates the user’s credentials against the database and returns a login response that now includes the current online users list. 🔑
        - For unknown types, a warning is logged. ⚠️
 
 ### 💻 Client Flow
@@ -37,7 +37,7 @@
 
    - The client connects to the server using `TcpClient` (127.0.0.1:5000) with robust error handling 🚀.
    - The UI is started from WPF (`MainWindow.xaml.cs` and `LoginWindow.xaml.cs`).
-   - **Online Users Stub:** Upon connection, the client displays a simulated list of online users (Alice, Bob, Charlie) via a stub implementation 🎉.
+   - The online users list is updated in the chat window upon successful login.
    - Enhanced UI responsiveness and error handling have been added 👍.
 
 2. **Sending Messages & User Authentication**
@@ -53,7 +53,7 @@
    - 🔍 Each message is read, decrypted, and deserialized into an `Envelope`.
    - 🖥️ Depending on the envelope type:
      - `"ChatMessage"`: The sender and content are displayed in the chat window.
-     - `"RegistrationResponse"` or `"LoginResponse"`: The client displays the corresponding response message.
+     - `"RegistrationResponse"` or `"LoginResponse"`: The client displays the corresponding response message. For login responses, the message now also includes the current online users list.
      - Otherwise, the plain text is displayed.
 
 ### 🛠 Helper Functions & UI Enhancements
@@ -66,16 +66,17 @@
   - Collecting user input.
   - Creating and encrypting the message envelope.
   - Sending the encrypted message via the helper.
-  - Decrypting and processing the server response, opening the main chat window upon successful login.
+  - Decrypting and processing the server response, opening the main chat window upon successful login and updating the online users list.
   - 💥 Enhanced error response handling is now in place.
 
 📦 ## Data Models
 
 - **Envelope** ✉️
   - Properties:
-    - `Type` (string): Indicates the type of the message (e.g., `"ChatMessage"`, `"Register"`, `"Login"`, `"RegistrationResponse"`, `"LoginResponse"`).
+    - `Type` (string): Indicates the type of the message (e.g., `"ChatMessage"`, `"Register"`, `"Login"`, `"RegistrationResponse"`, `"LoginResponse"`, `"OnlineUsers"`).
     - `Message` (`Message`): Contains the chat message details.
     - `User` (optional): Contains user information if needed.
+    - `Users` (optional): A list of online users returned with certain responses (such as a successful login).
 - **Message** 💬
   - Properties:
     - `Sender` (string)
@@ -95,7 +96,16 @@
     - `ContactName` (string): The display name for the contact.
     - `AddedDate` (`DateTime`): The date the contact was added.
 
-### 📝 User Registration & Authentication
+##- **Contact** 📇
+
+- Properties:
+  - `Id` (int)
+  - `OwnerUserId` (`Guid`): The ID of the user who owns the contact.
+  - `ContactUserId` (`Guid`): The ID of the contact user.
+  - `ContactName` (string): The display name for the contact.
+  - `AddedDate` (`DateTime`): The date the contact was added.
+
+# 📝 User Registration & Authentication
 
 - **Registration Message Structure:**  
   The envelope now supports registration details under the type `"Register"`. Registration messages include a `User` object with a username and a password hash. 🔐
@@ -105,7 +115,7 @@
   - Validates that the username and password hash are provided.
   - Checks against duplicates using the database.
   - Adds new users through `UserRepository` and returns proper encrypted responses. ✅
-  - Compares provided credentials during login and returns an appropriate response. 🔑
+  - Compares provided credentials during login and returns an encrypted response that includes the current online users list upon success. 🔑
 
 🔐 ## Encryption and Serialization
 
@@ -116,7 +126,7 @@
 
 - **Server**
   - `TCPChatApp.Server\ClientHandler.cs`: Manages client connections, processes registration and login requests (now backed by a SQL database), and broadcasts messages.
-  - `TCPChatApp.Server\ChatServer.cs`: Initializes the server and repository, accepts clients, and handles communication.
+  - `TCPChatApp.Server\ChatServer.cs`: Initializes the server and repository, accepts clients, handles communication, and broadcasts the latest online users list.
   - `TCPChatApp.Server\DataAccess\UserRepository.cs`: Provides methods to retrieve and store user data in SQL Server. 💾
 - **Client**
   - `TCPChatApp.Client\MainWindow.xaml.cs`: Contains UI logic for sending and displaying messages.
@@ -140,10 +150,11 @@
 
    - The encrypted message is sent from the client to the server using the `NetworkHelper`.
    - The server decrypts, deserializes, processes, logs, and (if appropriate) broadcasts the message to other clients while sending a response for registration or login requests.
+   - For login requests, the server response includes the current online users list.
 
 4. **Display (Client)** 👀
    - Clients decrypt received messages.
    - The envelope is deserialized.
-   - The message (sender and content) or response information is displayed in the chat window.
+   - The message (sender and content), registration response, or login response (with the updated online users list) is displayed in the UI.
 
 ✨ Happy coding and enjoy the new enhancements! ✨

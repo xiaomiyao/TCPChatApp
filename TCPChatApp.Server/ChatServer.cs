@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Text.Json;
 using TCPChatApp.Common.Models;
 using TCPChatApp.Server.DataAccess;
+using TCPChatApp.Common.Helpers;
 
 namespace TCPChatApp.Server
 {
@@ -14,8 +16,11 @@ namespace TCPChatApp.Server
         private bool _isRunning;
         private List<TcpClient> _clients = new List<TcpClient>();
 
-        // Remove the in‑memory store and use the repository instead
+        // Use the repository for user data
         public static UserRepository UserRepo;
+
+        // New: Persistent online users list
+        public static List<User> OnlineUsers { get; set; } = new List<User>();
 
         public void Start(int port = 5000)
         {
@@ -61,6 +66,39 @@ namespace TCPChatApp.Server
         {
             _isRunning = false;
             _listener?.Stop();
+        }
+
+        // New: Broadcast the latest online users list to all connected clients
+        public static void BroadcastOnlineUsers(List<TcpClient> clients)
+        {
+            var envelope = new Envelope
+            {
+                Type = "OnlineUsers",
+                Users = OnlineUsers
+            };
+
+            string json = JsonSerializer.Serialize(envelope);
+            string encryptedMessage = CryptoHelper.Encrypt(json);
+
+            lock (clients)
+            {
+                foreach (var client in clients)
+                {
+                    try
+                    {
+                        var stream = client.GetStream();
+                        using var writer = new System.IO.StreamWriter(stream, System.Text.Encoding.UTF8, 1024, leaveOpen: true)
+                        {
+                            AutoFlush = true
+                        };
+                        writer.WriteLine(encryptedMessage);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"❌ Broadcast error: {ex.Message}");
+                    }
+                }
+            }
         }
     }
 }

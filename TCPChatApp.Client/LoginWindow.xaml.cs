@@ -71,6 +71,7 @@ namespace TCPChatApp.Client
                 {
                     // 🚀 Open chat
                     MainWindow chatWindow = new MainWindow();
+                    chatWindow.UpdateOnlineUsersList(responseEnvelope.Users); // Update online users list
                     chatWindow.Show();
                     this.Close();
                 }

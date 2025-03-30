@@ -108,7 +108,11 @@ namespace TCPChatApp.Server
                                 var existingUser = ChatServer.UserRepo.GetUserByUsername(envelope.User.Username);
 
                                 if (existingUser != null && existingUser.PasswordHash.Equals(envelope.User.PasswordHash))
-                                {
+                                {                                    // Add the user to the online users list (if not already added)
+                                    if (!ChatServer.OnlineUsers.Exists(u => u.Username == envelope.User.Username))
+                                    {
+                                        ChatServer.OnlineUsers.Add(envelope.User);
+                                    }
                                     Console.WriteLine($"✅ User '{envelope.User.Username}' login successful.");
                                     SendLoginResponse(writer, "Login successful.");
                                 }
@@ -118,10 +122,6 @@ namespace TCPChatApp.Server
                                     SendLoginResponse(writer, "Login failed: Incorrect username or password.");
                                 }
                             }
-                        }
-                        else
-                        {
-                            Console.WriteLine("⚠️ Received envelope with unknown type or invalid format.");
                         }
                     }
                 }
@@ -171,7 +171,8 @@ namespace TCPChatApp.Server
                 {
                     Sender = "Server",
                     Content = responseMessage
-                }
+                },
+                Users = ChatServer.OnlineUsers // 🧑‍🤝‍🧑 Online users list
             };
 
             // 🔒 Encrypt and send the login response
@@ -179,6 +180,7 @@ namespace TCPChatApp.Server
             string encryptedResponse = CryptoHelper.Encrypt(jsonResponse);
             writer.WriteLine(encryptedResponse);
         }
+
 
         private void BroadcastMessage(string plainTextMessage)
         {

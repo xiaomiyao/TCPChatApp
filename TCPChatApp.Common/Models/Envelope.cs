@@ -11,5 +11,6 @@ namespace TCPChatApp.Common.Models
         public string Type { get; set; }
         public Message Message { get; set; }
         public User User { get; set; }
+        public List<User> Users { get; set; }
     }
 }
