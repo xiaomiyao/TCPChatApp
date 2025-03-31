@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
 using System.Windows.Input;
+using TCPChatApp.Common.Helpers;
 
 namespace TCPChatApp.Client
 {
@@ -18,8 +19,11 @@ namespace TCPChatApp.Client
         // 📖 Receive data
         private StreamReader _reader;
 
-        public MainWindow()
+        public User CurrentUser { get; }
+
+        public MainWindow(User user)
         {
+            CurrentUser = user;
             // 🖼️ Initialize UI
             InitializeComponent();
             // 🌐 Connect to server
@@ -36,10 +40,12 @@ namespace TCPChatApp.Client
                 // ✍️ Auto send
                 _writer = new StreamWriter(networkStream) { AutoFlush = true };
                 _reader = new StreamReader(networkStream);
-
                 // 🔄 Listen for messages
                 Thread listenThread = new Thread(ListenForMessages);
                 listenThread.Start();
+
+                RegisterConnection();
+
             }
             catch (Exception ex)
             {
@@ -59,9 +65,8 @@ namespace TCPChatApp.Client
                     if (string.IsNullOrEmpty(encryptedMessage)) continue;
 
                     // 🔓 Decrypt message
-                    string plainText = TCPChatApp.Common.Helpers.CryptoHelper.Decrypt(encryptedMessage);
                     // 📬 Attempt to deserialize as Envelope
-                    var envelope = JsonSerializer.Deserialize<Envelope>(plainText);
+                    var envelope = MessageProcessor.DecryptAndDeserialize(encryptedMessage);
 
                     if (envelope != null && envelope.Type == "ChatMessage")
                     {
@@ -76,7 +81,7 @@ namespace TCPChatApp.Client
                     else
                     {
                         // If envelope is null or not recognized, display the plain text
-                        Dispatcher.Invoke(() => ChatDisplay.AppendText($"error, received: {plainText}\n"));
+                        Dispatcher.Invoke(() => ChatDisplay.AppendText($"error, received: {envelope}\n"));
                     }
                 }
             }
@@ -124,10 +129,8 @@ namespace TCPChatApp.Client
                         User = null // Optional: Add user info if needed
                     };
 
-                    // 🔄 Serialize
-                    string json = JsonSerializer.Serialize(envelope);
-                    // 🔒 Encrypt
-                    string encrypted = TCPChatApp.Common.Helpers.CryptoHelper.Encrypt(json);
+                    // 🔄 Serialize & 🔒 Encrypt
+                    string encrypted = MessageProcessor.SerializeAndEncrypt(envelope);
                     // ✍️ Send
                     _writer.WriteLine(encrypted);
 
@@ -142,6 +145,20 @@ namespace TCPChatApp.Client
                 // ❌ Send error
                 MessageBox.Show($"Error sending message: {ex.Message}");
             }
+        }
+
+        private void RegisterConnection()
+        {
+            // 📬 Create envelope
+            var envelope = new Envelope
+            {
+                Type = "Authenticate",
+                User = CurrentUser
+            };
+            // 🔄 Serialize & 🔒 Encrypt
+            string encrypted = MessageProcessor.SerializeAndEncrypt(envelope);
+            // ✍️ Send
+            _writer.WriteLine(encrypted);
         }
 
         private string GetSelectedUsername(object sender)
@@ -183,10 +200,8 @@ namespace TCPChatApp.Client
                         User = null // Optional: Add user info if needed
                     };
 
-                    // 🔄 Serialize
-                    string json = JsonSerializer.Serialize(envelope);
-                    // 🔒 Encrypt
-                    string encrypted = TCPChatApp.Common.Helpers.CryptoHelper.Encrypt(json);
+                    // 🔄 Serialize & 🔒 Encrypt
+                    string encrypted = MessageProcessor.SerializeAndEncrypt(envelope);
                     // ✍️ Send
                     _writer.WriteLine(encrypted);
 

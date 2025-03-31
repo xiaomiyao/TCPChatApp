@@ -1,3 +1,4 @@
+using System.Net.Sockets;
 using System.Text.Json;
 using TCPChatApp.Common.Helpers;
 using TCPChatApp.Common.Models;
@@ -39,21 +40,18 @@ namespace TCPChatApp.Server
         }
 
         // 📢 Broadcast message to connected clients
-        public void BroadcastMessage(string encryptedMessage, ClientHandler? excludeClient = null)
+        public void BroadcastMessage(Envelope envelope, ClientHandler? excludeClient = null)
         {
             lock (_clients)
             {
                 foreach (var client in _clients)
                 {
-                    if (client == excludeClient)
+                    if (client == excludeClient || client.user == null)
                         continue;
 
                     try
                     {
-                        var stream = client._client.GetStream();
-                        using var writer = new StreamWriter(stream, System.Text.Encoding.UTF8, 1024, leaveOpen: true)
-                        { AutoFlush = true };
-                        writer.WriteLine(encryptedMessage);
+                        client.WriteToClient(envelope);
                     }
                     catch (Exception ex)
                     {
@@ -72,10 +70,8 @@ namespace TCPChatApp.Server
                 Users = GetOnlineUsers()
             };
 
-            string json = JsonSerializer.Serialize(envelope);
-            string encryptedMessage = CryptoHelper.Encrypt(json);
 
-            BroadcastMessage(encryptedMessage);
+            BroadcastMessage(envelope);
         }
     }
 }

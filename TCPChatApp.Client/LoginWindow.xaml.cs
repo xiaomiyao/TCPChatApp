@@ -68,8 +68,7 @@ namespace TCPChatApp.Client
                     responseEnvelope.Message != null && responseEnvelope.Message.Content.Contains("successful"))
                 {
                     // 🚀 Open chat
-                    MainWindow chatWindow = new MainWindow();
-                    chatWindow.UpdateOnlineUsersList(responseEnvelope.Users); // Update online users list
+                    MainWindow chatWindow = new MainWindow(envelope.User);
                     chatWindow.Show();
                     this.Close();
                 }

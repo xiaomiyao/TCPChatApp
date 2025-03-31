@@ -3,14 +3,14 @@ using System.Text;
 
 namespace TCPChatApp.Common.Helpers
 {
-    public static class CryptoHelper
+    internal static class CryptoHelper
     {
 
         private static readonly byte[] AesKey = Encoding.UTF8.GetBytes("1234567890ABCDEF");  
-        private static readonly byte[] AesIV = Encoding.UTF8.GetBytes("FEDCBA0987654321");  
+        private static readonly byte[] AesIV = Encoding.UTF8.GetBytes("FEDCBA0987654321");
 
 
-        public static string Encrypt(string plainText)
+        internal static string Encrypt(string plainText)
         {
             if (string.IsNullOrEmpty(plainText))
                 return plainText;
@@ -31,7 +31,7 @@ namespace TCPChatApp.Common.Helpers
             }
         }
 
-        public static string Decrypt(string cipherText)
+        internal static string Decrypt(string cipherText)
         {
             if (string.IsNullOrEmpty(cipherText))
                 return cipherText;

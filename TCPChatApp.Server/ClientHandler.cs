@@ -8,7 +8,8 @@ namespace TCPChatApp.Server
     {
 
         // 🔌 Connection objects
-        public readonly TcpClient _client = client;
+        private readonly TcpClient _client = client;
+        private StreamWriter writer;
 
         public User? user { get; private set; }
 
@@ -19,7 +20,7 @@ namespace TCPChatApp.Server
                 // 🔄 Setup streams
                 using var networkStream = _client.GetStream();
                 using var reader = new StreamReader(networkStream);
-                using var writer = new StreamWriter(networkStream) { AutoFlush = true };
+                writer = new StreamWriter(networkStream) { AutoFlush = true };
 
                 // 👂 Message loop
                 while (true)
@@ -30,7 +31,7 @@ namespace TCPChatApp.Server
 
                     // 🔓 Use MessageProcessor to decrypt and deserialize the incoming message
                     var envelope = MessageProcessor.DecryptAndDeserialize(encryptedMessage);
-                    ProcessEnvelope(envelope, writer);
+                    ProcessEnvelope(envelope);
                 }
             }
             catch (Exception ex)
@@ -42,8 +43,13 @@ namespace TCPChatApp.Server
                 RemoveClient();
             }
         }
+        public void WriteToClient(Envelope envelope)
+        {
+            var encryptedMessage = MessageProcessor.SerializeAndEncrypt(envelope);
+            writer.WriteLine(encryptedMessage);
+        }
 
-        private void ProcessEnvelope(Envelope envelope, StreamWriter writer)
+        private void ProcessEnvelope(Envelope envelope)
         {
             switch (envelope?.Type)
             {
@@ -51,10 +57,17 @@ namespace TCPChatApp.Server
                     chatMessageHandler.HandleChatMessage(this, envelope);
                     break;
                 case "Register":
-                    authHandler.HandleRegister(envelope, writer);
+                    authHandler.HandleRegister(this, envelope);
                     break;
                 case "Login":
-                    user = authHandler.HandleLogin(envelope, writer);
+                    authHandler.HandleLogin(this, envelope);
+                    break;
+                case "Authenticate":
+                    if(authHandler.ConfirmUserCredentials(envelope.User))
+                    {
+                        user = envelope.User;
+                        coordinator.BroadcastOnlineUsers();
+                    }
                     break;
                 default:
                     // Optionally handle unknown message types
@@ -64,6 +77,7 @@ namespace TCPChatApp.Server
 
         private void RemoveClient()
         {
+            writer.Close();
             coordinator.RemoveClient(this);
             _client.Close();
         }

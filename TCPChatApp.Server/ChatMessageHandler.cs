@@ -15,8 +15,7 @@ namespace TCPChatApp.Server
         // 📢 Send message to all connected clients except sender
         private void BroadcastMessage(ClientHandler sender, Envelope envelope)
         {
-            var encryptedMessage = MessageProcessor.SerializeAndEncrypt(envelope);
-            clientCoordinator.BroadcastMessage(encryptedMessage, sender);
+            clientCoordinator.BroadcastMessage(envelope, sender);
         }
     }
 }
