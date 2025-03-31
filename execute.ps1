@@ -25,5 +25,6 @@ Start-Sleep -Seconds 1
 Write-Host "Starting two client instances..."
 Start-Process $clientExePath
 Start-Process $clientExePath
+Start-Process $clientExePath
 
 Write-Host "Done."

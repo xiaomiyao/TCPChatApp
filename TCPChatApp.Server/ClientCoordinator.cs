@@ -5,6 +5,11 @@ using TCPChatApp.Common.Models;
 
 namespace TCPChatApp.Server
 {
+    // does coordination of clients
+
+
+
+
     public class ClientCoordinator
     {
         // 👥 List of connected clients
@@ -70,8 +75,31 @@ namespace TCPChatApp.Server
                 Users = GetOnlineUsers()
             };
 
-
             BroadcastMessage(envelope);
+        }
+
+        // 📩 Send a private message to a specific recipient
+        public void SendPrivateMessage(string recipient, Envelope envelope)
+        {
+            lock (_clients)
+            {
+                var recipientClient = _clients.FirstOrDefault(client => client.user != null && client.user.Username == recipient);
+                if (recipientClient != null)
+                {
+                    try
+                    {
+                        recipientClient.WriteToClient(envelope);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"❌ Private message error: {ex.Message}");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"⚠️ Recipient {recipient} not found.");
+                }
+            }
         }
     }
 }

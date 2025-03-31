@@ -1,25 +1,28 @@
 🚀 # TCP Chat App
 
 😊 ## Overview  
-💡 This TCP-based chat application consists of a server and a client, using dependency injection and a coordinator pattern for improved scalability. The server uses a ClientCoordinator to manage connections and broadcasts messages to all connected clients (except the sender). 
+💡 This TCP-based chat application consists of a server and a client, using dependency injection and a coordinator pattern for improved scalability. The server uses a ClientCoordinator to manage connections and broadcasts messages to all connected clients (except the sender).
 
 🔄 ## Application Flows
 
 ### 🚀 Server Flow
 
 1. **Initialization**
+
    - 🔧 Uses dependency injection for better service management
    - 🔌 Server starts on port 5000
    - 👂 Listens for and accepts client connections
    - 💾 Uses SQL Server database through `UserRepository`
 
 2. **Client Coordination**
+
    - 🎯 New `ClientCoordinator` class manages all client connections
    - 📊 Maintains thread-safe list of connected clients
    - 🔄 Handles client addition/removal
    - 📢 Manages broadcasting messages and online user updates
 
 3. **Client Handling**
+
    - For each new client connection:
      - 📡 Creates `ClientHandler` with injected dependencies
      - ➕ Adds client to coordinator
@@ -47,8 +50,8 @@
 
    - **Public Chat:** The user types a message into the main input field and clicks **Send**. The message is bundled into a `Message` object (with `"Everyone"` as the recipient), encrypted, and sent to the server.
    - **Private Messaging:**  
-     Right-clicking on an online user displays a context menu. Selecting **Message User** opens a dedicated input window where the user can type a private message.  
-     The private message sending logic (mirroring public message flow) sets the recipient to the target username. This ensures that private messages are delivered only to the intended recipient.
+     Right-clicking on an online user displays a context menu with options such as **Message User**. Selecting it opens a dedicated dialog where the user can type a private message.  
+     When a message is sent, the recipient field is set to the target username instead of "Everyone". This change ensures that the message is delivered exclusively to the specified recipient, keeping private communications confidential.
    - 💬 Both public and private messages are encrypted via the `CryptoHelper` before being sent to the server.
 
 3. **Receiving Messages**
@@ -157,12 +160,14 @@
 **New Components:**
 
 - **ClientCoordinator:**
+
   - 👥 Manages connected clients list
   - 🔒 Thread-safe client operations
   - 📢 Handles message broadcasting
   - 👤 Tracks online users
 
 - **ChatMessageHandler:**
+
   - 📨 Processes chat messages
   - 🔄 Works with coordinator for broadcasting
 
@@ -174,6 +179,7 @@
 **Updated Components:**
 
 - **ChatServer:**
+
   - 💉 Uses dependency injection
   - 🎯 Delegates client management to coordinator
   - 🧩 Reduced responsibilities

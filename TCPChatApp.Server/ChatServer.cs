@@ -3,6 +3,9 @@ using System.Net.Sockets;
 
 namespace TCPChatApp.Server
 {
+    // responsibility to handle new connectons 
+
+
     public class ChatServer(AuthenticationHandler authHandler, ChatMessageHandler chatMessageHandler, ClientCoordinator clientCoordinator)
     {
         // 🔌 TCP listener and server state
