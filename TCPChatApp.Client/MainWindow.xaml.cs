@@ -217,7 +217,20 @@ namespace TCPChatApp.Client
             if (!string.IsNullOrEmpty(username))
             {
                 MessageBox.Show($"Adding {username} as a user");
-                // TODO: add code to add the user to a friend list or similar functionality
+                var envelope = new Envelope
+                {
+                    Type = "AddUser",
+                    Message = new Message
+                    {
+                        Sender = CurrentUser.Username,
+                        Recipient = username,
+                        Content = $"Request to add {username}",
+                    },
+                    User = CurrentUser
+                };
+
+                string encrypted = MessageProcessor.SerializeAndEncrypt(envelope);
+                _writer.WriteLine(encrypted);
             }
         }
 
@@ -227,7 +240,21 @@ namespace TCPChatApp.Client
             if (!string.IsNullOrEmpty(username))
             {
                 MessageBox.Show($"Blocking {username}");
-                // TODO: add code to block the user so that messages are ignored
+                var envelope = new Envelope
+                {
+                    Type = "BlockUser",
+                    Message = new Message
+                    {
+                        Sender = CurrentUser.Username,
+                        Recipient = username,
+                        Content = $"Request to block {username}",
+                        Timestamp = DateTime.Now
+                    },
+                    User = CurrentUser
+                };
+
+                string encrypted = MessageProcessor.SerializeAndEncrypt(envelope);
+                _writer.WriteLine(encrypted);
             }
         }
 

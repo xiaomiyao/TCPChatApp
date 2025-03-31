@@ -51,6 +51,7 @@ namespace TCPChatApp.Server
 
         private void ProcessEnvelope(Envelope envelope)
         {
+            System.Console.WriteLine($"Received message: {envelope?.Type} from {envelope?.User?.Username}");
             switch (envelope?.Type)
             {
                 case "ChatMessage":
@@ -63,7 +64,7 @@ namespace TCPChatApp.Server
                     authHandler.HandleLogin(this, envelope);
                     break;
                 case "Authenticate":
-                    if(authHandler.ConfirmUserCredentials(envelope.User))
+                    if (authHandler.ConfirmUserCredentials(envelope.User))
                     {
                         user = envelope.User;
                         coordinator.BroadcastOnlineUsers();
