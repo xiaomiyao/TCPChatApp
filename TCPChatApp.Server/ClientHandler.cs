@@ -43,9 +43,9 @@ namespace TCPChatApp.Server
                 RemoveClient();
             }
         }
-    
 
-       
+
+
         public void WriteToClient(Envelope envelope)
         {
             var encryptedMessage = MessageProcessor.SerializeAndEncrypt(envelope);
@@ -90,6 +90,12 @@ namespace TCPChatApp.Server
                 case "BlockUser":
                     if (envelope.User != null && envelope.Message != null)
                     {
+                        // Prevent users from blocking themselves
+                        if (envelope.User.Username.Equals(envelope.Message.Recipient, System.StringComparison.OrdinalIgnoreCase))
+                        {
+                            Console.WriteLine("⚠️ Cannot block yourself.");
+                            break;
+                        }
                         var relation = new Relation
                         {
                             UserName = envelope.User.Username,
@@ -98,7 +104,6 @@ namespace TCPChatApp.Server
                             IsBlocked = true
                         };
                         bool success = relationRepository.AddRelation(relation);
-
                         Console.WriteLine(success ? $"✅ Blocked user: {relation.TargetName}" : $"⚠️ Failed to block user: {relation.TargetName}");
                     }
                     break;

@@ -239,6 +239,13 @@ namespace TCPChatApp.Client
             string username = GetSelectedUsername(sender);
             if (!string.IsNullOrEmpty(username))
             {
+                // Prevent blocking self in the client
+                if (username.Equals(CurrentUser.Username, System.StringComparison.OrdinalIgnoreCase))
+                {
+                    MessageBox.Show("You cannot block yourself.", "Block User", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
                 MessageBox.Show($"Blocking {username}");
                 var envelope = new Envelope
                 {
