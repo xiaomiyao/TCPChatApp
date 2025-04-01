@@ -1,12 +1,14 @@
 ﻿using System.Net;
 using System.Net.Sockets;
+using TCPChatApp.Server.DataAccess;
+
 
 namespace TCPChatApp.Server
 {
     // responsibility to handle new connectons 
 
 
-    public class ChatServer(AuthenticationHandler authHandler, ChatMessageHandler chatMessageHandler, ClientCoordinator clientCoordinator)
+    public class ChatServer(AuthenticationHandler authHandler, ChatMessageHandler chatMessageHandler, ClientCoordinator clientCoordinator, RelationRepository relationRepository)
     {
         // 🔌 TCP listener and server state
         private TcpListener _listener;
@@ -35,7 +37,7 @@ namespace TCPChatApp.Server
                     TcpClient client = _listener.AcceptTcpClient();
                     Console.WriteLine("➡️ Client connected!");
 
-                    var handler = new ClientHandler(client, authHandler, chatMessageHandler, clientCoordinator);
+                    var handler = new ClientHandler(client, authHandler, chatMessageHandler, clientCoordinator, relationRepository);
 
                     clientCoordinator.AddClient(handler);
                     Thread clientThread = new(handler.HandleClient);

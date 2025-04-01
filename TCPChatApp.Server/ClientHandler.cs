@@ -1,12 +1,12 @@
 ﻿using System.Net.Sockets;
 using TCPChatApp.Common.Helpers;
 using TCPChatApp.Common.Models;
+using TCPChatApp.Server.DataAccess;
 
 namespace TCPChatApp.Server
 {
-    public class ClientHandler(TcpClient client, AuthenticationHandler authHandler, ChatMessageHandler chatMessageHandler, ClientCoordinator coordinator)
+    public class ClientHandler(TcpClient client, AuthenticationHandler authHandler, ChatMessageHandler chatMessageHandler, ClientCoordinator coordinator, RelationRepository relationRepository)
     {
-
         // 🔌 Connection objects
         private readonly TcpClient _client = client;
         private StreamWriter writer;
@@ -43,6 +43,9 @@ namespace TCPChatApp.Server
                 RemoveClient();
             }
         }
+    
+
+       
         public void WriteToClient(Envelope envelope)
         {
             var encryptedMessage = MessageProcessor.SerializeAndEncrypt(envelope);
@@ -68,6 +71,35 @@ namespace TCPChatApp.Server
                     {
                         user = envelope.User;
                         coordinator.BroadcastOnlineUsers();
+                    }
+                    break;
+                case "AddUser":
+                    if (envelope.User != null && envelope.Message != null)
+                    {
+                        var relation = new Relation
+                        {
+                            UserName = envelope.User.Username,
+                            TargetName = envelope.Message.Recipient,
+                            IsFriend = true,
+                            IsBlocked = false
+                        };
+                        bool success = relationRepository.AddRelation(relation);
+                        Console.WriteLine(success ? $"✅ Added friend relation: {relation.TargetName}" : $"⚠️ Failed to add friend relation: {relation.TargetName}");
+                    }
+                    break;
+                case "BlockUser":
+                    if (envelope.User != null && envelope.Message != null)
+                    {
+                        var relation = new Relation
+                        {
+                            UserName = envelope.User.Username,
+                            TargetName = envelope.Message.Recipient,
+                            IsFriend = false,
+                            IsBlocked = true
+                        };
+                        bool success = relationRepository.AddRelation(relation);
+
+                        Console.WriteLine(success ? $"✅ Blocked user: {relation.TargetName}" : $"⚠️ Failed to block user: {relation.TargetName}");
                     }
                     break;
                 default:

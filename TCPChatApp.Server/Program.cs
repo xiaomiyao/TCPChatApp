@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using TCPChatApp.Server.DataAccess;
 
+
 namespace TCPChatApp.Server
 {
     internal static class Program
@@ -32,6 +33,8 @@ namespace TCPChatApp.Server
             services.AddSingleton<ClientCoordinator>();
             services.AddSingleton<ChatMessageHandler>();
             services.AddSingleton<AuthenticationHandler>();
+            services.AddSingleton<RelationRepository>(provider =>
+                new RelationRepository("Server=MSI; Database=TCPChatApp; Trusted_Connection=True; Encrypt=True; TrustServerCertificate=True;"));
 
         }
     }
