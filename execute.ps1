@@ -9,6 +9,7 @@ $serverExePath = ".\TCPChatApp.Server\bin\Release\net8.0\TCPChatApp.Server.exe"
 # Kill any running server to avoid file lock
 Write-Host "Terminating any existing server process..."
 Get-Process TCPChatApp.Server -ErrorAction SilentlyContinue | Stop-Process -Force
+Get-Process TCPChatApp.Client -ErrorAction SilentlyContinue | Stop-Process -Force
 
 # Build the solution
 Write-Host "Building the solution..."

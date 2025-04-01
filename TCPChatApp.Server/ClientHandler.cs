@@ -85,6 +85,9 @@ namespace TCPChatApp.Server
                         };
                         bool success = relationRepository.AddRelation(relation);
                         Console.WriteLine(success ? $"✅ Added friend relation: {relation.TargetName}" : $"⚠️ Failed to add friend relation: {relation.TargetName}");
+                        // get users relationsList from RelationRepository
+                        var relationsList = relationRepository.GetRelationsByUserName(envelope.User.Username);
+                        NotifyUserRelations(relationsList);
                     }
                     break;
                 case "BlockUser":
@@ -95,6 +98,7 @@ namespace TCPChatApp.Server
                         {
                             Console.WriteLine("⚠️ Cannot block yourself.");
                             break;
+
                         }
                         var relation = new Relation
                         {
@@ -105,12 +109,25 @@ namespace TCPChatApp.Server
                         };
                         bool success = relationRepository.AddRelation(relation);
                         Console.WriteLine(success ? $"✅ Blocked user: {relation.TargetName}" : $"⚠️ Failed to block user: {relation.TargetName}");
+                        var relationsList = relationRepository.GetRelationsByUserName(envelope.User.Username);
+                        NotifyUserRelations(relationsList);
                     }
                     break;
                 default:
                     // Optionally handle unknown message types
                     break;
             }
+        }
+
+
+        private void NotifyUserRelations(List<Relation> relationsList)
+        {
+            var envelope = new Envelope
+            {
+                Type = "RelationsList",
+                Relations = relationsList
+            };
+            WriteToClient(envelope);
         }
 
         private void RemoveClient()

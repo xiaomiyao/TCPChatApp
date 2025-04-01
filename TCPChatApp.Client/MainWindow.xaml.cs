@@ -7,6 +7,7 @@ using System.Windows.Controls;
 using System.Windows.Threading;
 using System.Windows.Input;
 using TCPChatApp.Common.Helpers;
+using System.Windows.Media;
 
 namespace TCPChatApp.Client
 {
@@ -20,6 +21,8 @@ namespace TCPChatApp.Client
         private StreamReader _reader;
 
         public User CurrentUser { get; }
+        public List<Relation> Relations { get; set; } = new List<Relation>();
+        public List<User> OnlineUsers { get; set; } = new List<User>();
 
         public MainWindow(User user)
         {
@@ -78,6 +81,11 @@ namespace TCPChatApp.Client
                     {
                         UpdateOnlineUsersList(envelope.Users);
                     }
+                    else if (envelope != null && envelope.Type == "RelationsList")
+                    {
+                        // Expecting a new property "Relations" in Envelope (List<Relation>)
+                        UpdateRelationsDisplay(envelope.Relations);
+                    }
                     else
                     {
                         // If envelope is null or not recognized, display the plain text
@@ -94,14 +102,61 @@ namespace TCPChatApp.Client
 
         public void UpdateOnlineUsersList(List<User> users)
         {
+            OnlineUsers = users;
+            RenderOnlineUsersList();
+        }
+
+        private void RenderOnlineUsersList()
+        {
             Dispatcher.Invoke(() =>
             {
                 OnlineUsersList.Items.Clear();
-                foreach (var user in users)
+                // 🖥️ Display online users, users in Relations where isBlocked==True must have red font, where isFriend==True must have the green font
+                foreach (var user in OnlineUsers)
                 {
-                    OnlineUsersList.Items.Add(user.Username);
+                    var listBoxItem = new ListBoxItem
+                    {
+                        Content = user.Username,
+                        ContextMenu = new ContextMenu()
+                    };
+
+                    // Add context menu items
+                    // var messageUserMenuItem = new MenuItem { Header = "Message User" };
+                    // messageUserMenuItem.Click += MessageUser_Click;
+                    // listBoxItem.ContextMenu.Items.Add(messageUserMenuItem);
+
+                    // var addUserMenuItem = new MenuItem { Header = "Add User" };
+                    // addUserMenuItem.Click += AddUser_Click;
+                    // listBoxItem.ContextMenu.Items.Add(addUserMenuItem);
+
+                    // var blockUserMenuItem = new MenuItem { Header = "Block User" };
+                    // blockUserMenuItem.Click += BlockUser_Click;
+                    // listBoxItem.ContextMenu.Items.Add(blockUserMenuItem);
+
+                    // Check if the user is blocked or a friend
+                    var relation = Relations.FirstOrDefault(r => r.UserName == CurrentUser.Username && r.TargetName == user.Username);
+                    if (relation != null)
+                    {
+                        if (relation.IsBlocked)
+                        {
+                            listBoxItem.Foreground = Brushes.Red; // Blocked users in red
+                        }
+                        else if (relation.IsFriend)
+                        {
+                            listBoxItem.Foreground = Brushes.Green; // Friends in green
+                        }
+                    }
+
+                    OnlineUsersList.Items.Add(listBoxItem);
                 }
+
             });
+        }
+
+        private void UpdateRelationsDisplay(List<Relation> relations)
+        {
+            Relations = relations;
+            RenderOnlineUsersList();
         }
 
         private void SendButton_Click(object sender, RoutedEventArgs e)
