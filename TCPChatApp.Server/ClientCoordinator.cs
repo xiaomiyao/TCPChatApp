@@ -2,6 +2,7 @@ using System.Net.Sockets;
 using System.Text.Json;
 using TCPChatApp.Common.Helpers;
 using TCPChatApp.Common.Models;
+using TCPChatApp.Server.DataAccess;
 
 namespace TCPChatApp.Server
 {
@@ -10,7 +11,7 @@ namespace TCPChatApp.Server
 
 
 
-    public class ClientCoordinator
+    public class ClientCoordinator()
     {
         // 👥 List of connected clients
         private readonly List<ClientHandler> _clients = new();
@@ -30,6 +31,7 @@ namespace TCPChatApp.Server
             lock (_clients)
             {
                 _clients.Remove(clientHandler);
+                BroadcastOnlineUsers();
             }
         }
 
@@ -79,11 +81,11 @@ namespace TCPChatApp.Server
         }
 
         // 📩 Send a private message to a specific recipient
-        public void SendPrivateMessage(string recipient, Envelope envelope)
+        public void SendPrivateMessage(Envelope envelope)
         {
             lock (_clients)
             {
-                var recipientClient = _clients.FirstOrDefault(client => client.user != null && client.user.Username == recipient);
+                var recipientClient = _clients.FirstOrDefault(client => client.user != null && client.user.Username == envelope.Message.Recipient);
                 if (recipientClient != null)
                 {
                     try
@@ -97,7 +99,7 @@ namespace TCPChatApp.Server
                 }
                 else
                 {
-                    Console.WriteLine($"⚠️ Recipient {recipient} not found.");
+                    Console.WriteLine($"⚠️ Recipient {envelope.Message.Recipient} not found.");
                 }
             }
         }

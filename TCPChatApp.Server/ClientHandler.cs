@@ -74,6 +74,13 @@ namespace TCPChatApp.Server
                         NotifyUserRelations();
                     }
                     break;
+                case "Disconnect":
+                    if (envelope.User != null)
+                    {
+                        coordinator.RemoveClient(this);
+                        Console.WriteLine($"❌ User {envelope.User.Username} disconnected.");
+                    }
+                    break;
                 case "AddUser":
                     if (envelope.User != null && envelope.Message != null)
                     {

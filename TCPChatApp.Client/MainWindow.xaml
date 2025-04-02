@@ -13,22 +13,36 @@
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="200"/>
         </Grid.ColumnDefinitions>
+
+        <!-- Chat Area - Left Column -->
         <Grid Grid.Column="0">
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <TextBox x:Name="ChatDisplay"
+            
+            <!-- Add search filter for chat -->
+            <TextBox x:Name="ChatFilter"
                      Grid.Row="0"
+                     Margin="10,10,10,0"
+                     TextChanged="ChatFilter_TextChanged"
+                     BorderThickness="1"
+                     VerticalAlignment="Center"
+                     Height="24"/>
+                    
+            <TextBox x:Name="ChatDisplay"
+                     Grid.Row="1"
                      Margin="10"
                      IsReadOnly="True"
                      VerticalScrollBarVisibility="Auto"
                      TextWrapping="Wrap"/>
-            <StackPanel Grid.Row="1"
+            
+            <StackPanel Grid.Row="2"
                         Orientation="Horizontal"
                         Margin="10">
                 <TextBox x:Name="MessageInput"
-                         Width="600"
+                         Width="300"
                          Margin="0,0,10,0"/>
                 <Button x:Name="SendButton"
                         Content="Send"
@@ -36,10 +50,41 @@
                         Click="SendButton_Click"/>
             </StackPanel>
         </Grid>
-        <GroupBox Header="Online Users"
-                  Grid.Column="1"
-                  Margin="10">
-            <ListBox x:Name="OnlineUsersList"/>
-        </GroupBox>
+
+        <!-- Users Lists - Right Column -->
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Online Users List -->
+            <GroupBox Header="Online Users"
+                     Grid.Row="0"
+                     Margin="10">
+                <ListBox x:Name="OnlineUsersList"/>
+            </GroupBox>
+
+            <!-- Friends List -->
+            <GroupBox Header="Friends"
+                     Grid.Row="1"
+                     Margin="10">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <TextBox x:Name="FriendsFilter"
+                             Grid.Row="0"
+                             Margin="0,0,0,5"
+                             TextChanged="FriendsFilter_TextChanged"
+                             BorderThickness="1"/>
+                    
+                    <ListBox x:Name="FriendsList"
+                             Grid.Row="1"/>
+                </Grid>
+            </GroupBox>
+        </Grid>
     </Grid>
 </Window>

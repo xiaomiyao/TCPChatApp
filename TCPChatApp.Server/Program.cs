@@ -26,15 +26,15 @@ namespace TCPChatApp.Server
 
         private static void ConfigureServices(IServiceCollection services)
         {
+            var connectionString = "Server=localhost\\SQLEXPRESS; Database=TCPChatApp; Trusted_Connection=True; Encrypt=True; TrustServerCertificate=True;";
             services.AddSingleton(provider =>
-                new UserRepository("Server=MSI; Database=TCPChatApp; Trusted_Connection=True; Encrypt=True; TrustServerCertificate=True;"));
+                new UserRepository(connectionString));
 
             services.AddSingleton<ChatServer>();
             services.AddSingleton<ClientCoordinator>();
             services.AddSingleton<ChatMessageHandler>();
             services.AddSingleton<AuthenticationHandler>();
-            services.AddSingleton<RelationRepository>(provider =>
-                new RelationRepository("Server=MSI; Database=TCPChatApp; Trusted_Connection=True; Encrypt=True; TrustServerCertificate=True;"));
+            services.AddSingleton<RelationRepository>(provider => new RelationRepository(connectionString));
 
         }
     }

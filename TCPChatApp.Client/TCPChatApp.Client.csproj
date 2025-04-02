@@ -12,5 +12,18 @@
   <ItemGroup>
     <ProjectReference Include="..\TCPChatApp.Common\TCPChatApp.Common.csproj" />
   </ItemGroup>
-
+	<ItemGroup>
+		<Compile Update="MainWindow.Network.xaml.cs">
+			<DependentUpon>MainWindow.xaml</DependentUpon>
+		</Compile>
+		<Compile Update="MainWindow.Users.xaml.cs">
+			<DependentUpon>MainWindow.xaml</DependentUpon>
+		</Compile>
+		<Compile Update="MainWindow.Messaging.xaml.cs">
+			<DependentUpon>MainWindow.xaml</DependentUpon>
+		</Compile>
+		<Compile Update="MainWindow.UserActions.xaml.cs">
+			<DependentUpon>MainWindow.xaml</DependentUpon>
+		</Compile>
+	</ItemGroup>
 </Project>
