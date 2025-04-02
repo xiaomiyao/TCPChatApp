@@ -26,7 +26,7 @@ namespace TCPChatApp.Server
 
         private static void ConfigureServices(IServiceCollection services)
         {
-            var connectionString = "Server=localhost\\SQLEXPRESS; Database=TCPChatApp; Trusted_Connection=True; Encrypt=True; TrustServerCertificate=True;";
+            var connectionString = "Server=MSI; Database=TCPChatApp; Trusted_Connection=True; Encrypt=True; TrustServerCertificate=True;";
             services.AddSingleton(provider =>
                 new UserRepository(connectionString));
 
