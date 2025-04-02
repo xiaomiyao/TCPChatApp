@@ -74,10 +74,10 @@ namespace TCPChatApp.Client
                     if (envelope != null && envelope.Type == "ChatMessage")
                     {
                         // 🖥️ Display message with sender and content
-                        if(Relations.Any(r => r.TargetName.Equals(envelope.Message.Sender, System.StringComparison.OrdinalIgnoreCase) 
+                        if (Relations.Any(r => r.TargetName.Equals(envelope.Message.Sender, System.StringComparison.OrdinalIgnoreCase)
                             && r.IsBlocked))
                         {
-                            continue; 
+                            continue;
                         }
                         string displayText = $"{envelope.Message.Content}";
                         Dispatcher.Invoke(() => ChatDisplay.AppendText($"{displayText}\n"));
@@ -121,7 +121,7 @@ namespace TCPChatApp.Client
                 {
                     if (user.Username.Equals(CurrentUser.Username, System.StringComparison.OrdinalIgnoreCase))
                     {
-                        continue; 
+                        continue;
                     }
 
                     var listBoxItem = new ListBoxItem
@@ -137,26 +137,28 @@ namespace TCPChatApp.Client
                     listBoxItem.ContextMenu.Items.Add(messageUserMenuItem);
 
                     //add user unless already a friend 
-                    if(!Relations.Any(r => r.TargetName == user.Username && r.IsFriend))
+                    if (!Relations.Any(r => r.TargetName == user.Username && r.IsFriend))
                     {
                         var addUserMenuItem = new MenuItem { Header = "Add User" };
                         addUserMenuItem.Click += AddUser_Click;
                         listBoxItem.ContextMenu.Items.Add(addUserMenuItem);
                     }
-                    else{
+                    else
+                    {
                         var removeUserMenuItem = new MenuItem { Header = "Remove User" };
                         removeUserMenuItem.Click += DeleteUser_Click;
                         listBoxItem.ContextMenu.Items.Add(removeUserMenuItem);
                     }
 
                     // block user unless already blocked
-                    if(!Relations.Any(r => r.TargetName == user.Username && r.IsBlocked))
+                    if (!Relations.Any(r => r.TargetName == user.Username && r.IsBlocked))
                     {
                         var blockUserMenuItem = new MenuItem { Header = "Block User" };
                         blockUserMenuItem.Click += BlockUser_Click;
                         listBoxItem.ContextMenu.Items.Add(blockUserMenuItem);
                     }
-                    else{
+                    else
+                    {
                         var unblockUserMenuItem = new MenuItem { Header = "Unblock User" };
                         unblockUserMenuItem.Click += UnblockUser_Click;
                         listBoxItem.ContextMenu.Items.Add(unblockUserMenuItem);
@@ -184,12 +186,54 @@ namespace TCPChatApp.Client
 
         private void UnblockUser_Click(object sender, RoutedEventArgs e)
         {
-            throw new NotImplementedException();
+            string username = GetSelectedUsername(sender);
+            if (string.IsNullOrEmpty(username))
+            {
+                return;
+            }
+
+            MessageBox.Show($"Unblocking {username}");
+            var envelope = new Envelope
+            {
+                Type = "UnblockUser",
+                Message = new Message
+                {
+                    Sender = CurrentUser.Username,
+                    Recipient = username,
+                    Content = $"Request to unblock {username}",
+                    Timestamp = DateTime.Now
+                },
+                User = CurrentUser
+            };
+
+            string encrypted = MessageProcessor.SerializeAndEncrypt(envelope);
+            _writer.WriteLine(encrypted);
         }
 
         private void DeleteUser_Click(object sender, RoutedEventArgs e)
         {
-            throw new NotImplementedException();
+            string username = GetSelectedUsername(sender);
+            if (string.IsNullOrEmpty(username))
+            {
+                return;
+            }
+
+            MessageBox.Show($"Removing {username} from your friend list");
+            var envelope = new Envelope
+            {
+                Type = "DeleteUser",
+                Message = new Message
+                {
+                    Sender = CurrentUser.Username,
+                    Recipient = username,
+                    Content = $"Request to remove {username} from friend list",
+                    Timestamp = DateTime.Now
+                },
+                User = CurrentUser
+            };
+
+            string encrypted = MessageProcessor.SerializeAndEncrypt(envelope);
+            _writer.WriteLine(encrypted);
         }
 
         private void UpdateRelationsDisplay(List<Relation> relations)
@@ -358,7 +402,7 @@ namespace TCPChatApp.Client
                 _writer.WriteLine(encrypted);
             }
         }
-        
+
 
         private void ListBoxItem_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {

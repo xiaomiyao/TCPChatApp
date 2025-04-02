@@ -70,5 +70,34 @@ namespace TCPChatApp.Server.DataAccess
             int rowsAffected = command.ExecuteNonQuery();
             return rowsAffected > 0;
         }
+
+        public bool DeleteBlock(string username, string targetName)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            connection.Open();
+
+            string query = "DELETE FROM Relations WHERE UserName = @UserName AND TargetName = @TargetName";
+            using var command = new SqlCommand(query, connection);
+            command.Parameters.AddWithValue("@UserName", username);
+            command.Parameters.AddWithValue("@TargetName", targetName);
+
+            int rowsAffected = command.ExecuteNonQuery();
+            return rowsAffected > 0;
+        }
+
+        public bool DeleteFriend(string username, string targetName)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            connection.Open();
+
+            string query = "DELETE FROM Relations WHERE UserName = @UserName AND TargetName = @TargetName AND IsFriend = @IsFriend";
+            using var command = new SqlCommand(query, connection);
+            command.Parameters.AddWithValue("@UserName", username);
+            command.Parameters.AddWithValue("@TargetName", targetName);
+            command.Parameters.AddWithValue("@IsFriend", true);
+
+            int rowsAffected = command.ExecuteNonQuery();
+            return rowsAffected > 0;
+        }
     }
 }

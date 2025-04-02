@@ -86,7 +86,6 @@ namespace TCPChatApp.Server
                         };
                         bool success = relationRepository.AddRelation(relation);
                         Console.WriteLine(success ? $"✅ Added friend relation: {relation.TargetName}" : $"⚠️ Failed to add friend relation: {relation.TargetName}");
-                        // get users relationsList from RelationRepository
                         NotifyUserRelations();
                     }
                     break;
@@ -98,7 +97,6 @@ namespace TCPChatApp.Server
                         {
                             Console.WriteLine("⚠️ Cannot block yourself.");
                             break;
-
                         }
                         var relation = new Relation
                         {
@@ -109,6 +107,20 @@ namespace TCPChatApp.Server
                         };
                         bool success = relationRepository.AddRelation(relation);
                         Console.WriteLine(success ? $"✅ Blocked user: {relation.TargetName}" : $"⚠️ Failed to block user: {relation.TargetName}");
+                        NotifyUserRelations();
+                    }
+                    break;
+                case "UnblockUser":
+                    // send name of user and blocked user to relation repository to unblock user
+                    relationRepository.DeleteBlock(envelope.User.Username, envelope.Message.Recipient);
+                    Console.WriteLine($"✅ Deleted block relation: {envelope.Message.Recipient}");
+                    NotifyUserRelations();
+                    break;
+                case "DeleteUser":
+                    if (envelope.User != null && envelope.Message != null)
+                    {
+                        bool success = relationRepository.DeleteFriend(envelope.User.Username, envelope.Message.Recipient);
+                        Console.WriteLine(success ? $"✅ Deleted friend relation: {envelope.Message.Recipient}" : $"⚠️ Failed to delete friend relation: {envelope.Message.Recipient}");
                         NotifyUserRelations();
                     }
                     break;
