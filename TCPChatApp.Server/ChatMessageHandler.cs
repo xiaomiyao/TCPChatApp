@@ -14,7 +14,8 @@ namespace TCPChatApp.Server
         public void HandleChatMessage(ClientHandler sender, Envelope envelope)
         {
             Console.WriteLine($"📨 Received from {envelope.Message.Sender}: {envelope.Message.Content}");
-
+            envelope.Message.Content = $"{envelope.Message.Sender} to {envelope.Message.Recipient}: {envelope.Message.Content}";
+            
             // If recipient is specified and not "Everyone", send as a private message
             if (!string.IsNullOrEmpty(envelope.Message.Recipient) && envelope.Message.Recipient != "Everyone")
             {

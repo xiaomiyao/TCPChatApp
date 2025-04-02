@@ -74,7 +74,12 @@ namespace TCPChatApp.Client
                     if (envelope != null && envelope.Type == "ChatMessage")
                     {
                         // 🖥️ Display message with sender and content
-                        string displayText = $"{envelope.Message.Sender}: {envelope.Message.Content}";
+                        if(Relations.Any(r => r.TargetName.Equals(envelope.Message.Sender, System.StringComparison.OrdinalIgnoreCase) 
+                            && r.IsBlocked))
+                        {
+                            continue; 
+                        }
+                        string displayText = $"{envelope.Message.Content}";
                         Dispatcher.Invoke(() => ChatDisplay.AppendText($"{displayText}\n"));
                     }
                     else if (envelope != null && envelope.Type == "OnlineUsers")
@@ -114,24 +119,48 @@ namespace TCPChatApp.Client
                 // 🖥️ Display online users, users in Relations where isBlocked==True must have red font, where isFriend==True must have the green font
                 foreach (var user in OnlineUsers)
                 {
+                    if (user.Username.Equals(CurrentUser.Username, System.StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue; 
+                    }
+
                     var listBoxItem = new ListBoxItem
                     {
                         Content = user.Username,
                         ContextMenu = new ContextMenu()
                     };
 
-                    // Add context menu items
-                    // var messageUserMenuItem = new MenuItem { Header = "Message User" };
-                    // messageUserMenuItem.Click += MessageUser_Click;
-                    // listBoxItem.ContextMenu.Items.Add(messageUserMenuItem);
+                    // Add context menu items 
 
-                    // var addUserMenuItem = new MenuItem { Header = "Add User" };
-                    // addUserMenuItem.Click += AddUser_Click;
-                    // listBoxItem.ContextMenu.Items.Add(addUserMenuItem);
+                    var messageUserMenuItem = new MenuItem { Header = "Message User" };
+                    messageUserMenuItem.Click += MessageUser_Click;
+                    listBoxItem.ContextMenu.Items.Add(messageUserMenuItem);
 
-                    // var blockUserMenuItem = new MenuItem { Header = "Block User" };
-                    // blockUserMenuItem.Click += BlockUser_Click;
-                    // listBoxItem.ContextMenu.Items.Add(blockUserMenuItem);
+                    //add user unless already a friend 
+                    if(!Relations.Any(r => r.TargetName == user.Username && r.IsFriend))
+                    {
+                        var addUserMenuItem = new MenuItem { Header = "Add User" };
+                        addUserMenuItem.Click += AddUser_Click;
+                        listBoxItem.ContextMenu.Items.Add(addUserMenuItem);
+                    }
+                    else{
+                        var removeUserMenuItem = new MenuItem { Header = "Remove User" };
+                        removeUserMenuItem.Click += DeleteUser_Click;
+                        listBoxItem.ContextMenu.Items.Add(removeUserMenuItem);
+                    }
+
+                    // block user unless already blocked
+                    if(!Relations.Any(r => r.TargetName == user.Username && r.IsBlocked))
+                    {
+                        var blockUserMenuItem = new MenuItem { Header = "Block User" };
+                        blockUserMenuItem.Click += BlockUser_Click;
+                        listBoxItem.ContextMenu.Items.Add(blockUserMenuItem);
+                    }
+                    else{
+                        var unblockUserMenuItem = new MenuItem { Header = "Unblock User" };
+                        unblockUserMenuItem.Click += UnblockUser_Click;
+                        listBoxItem.ContextMenu.Items.Add(unblockUserMenuItem);
+                    }
 
                     // Check if the user is blocked or a friend
                     var relation = Relations.FirstOrDefault(r => r.UserName == CurrentUser.Username && r.TargetName == user.Username);
@@ -153,6 +182,16 @@ namespace TCPChatApp.Client
             });
         }
 
+        private void UnblockUser_Click(object sender, RoutedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void DeleteUser_Click(object sender, RoutedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
         private void UpdateRelationsDisplay(List<Relation> relations)
         {
             Relations = relations;
@@ -170,7 +209,7 @@ namespace TCPChatApp.Client
                     // 📨 Create message
                     var messageModel = new Message
                     {
-                        Sender = "Client",
+                        Sender = CurrentUser.Username,
                         Recipient = "Everyone",
                         Content = message,
                         Timestamp = DateTime.Now
@@ -241,7 +280,7 @@ namespace TCPChatApp.Client
                     // 📨 Create private message
                     var messageModel = new Message
                     {
-                        Sender = "Client",
+                        Sender = CurrentUser.Username,
                         Recipient = username,
                         Content = messageToSend,
                         Timestamp = DateTime.Now
@@ -319,6 +358,7 @@ namespace TCPChatApp.Client
                 _writer.WriteLine(encrypted);
             }
         }
+        
 
         private void ListBoxItem_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {

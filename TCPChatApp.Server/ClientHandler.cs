@@ -71,6 +71,7 @@ namespace TCPChatApp.Server
                     {
                         user = envelope.User;
                         coordinator.BroadcastOnlineUsers();
+                        NotifyUserRelations();
                     }
                     break;
                 case "AddUser":
@@ -86,8 +87,7 @@ namespace TCPChatApp.Server
                         bool success = relationRepository.AddRelation(relation);
                         Console.WriteLine(success ? $"✅ Added friend relation: {relation.TargetName}" : $"⚠️ Failed to add friend relation: {relation.TargetName}");
                         // get users relationsList from RelationRepository
-                        var relationsList = relationRepository.GetRelationsByUserName(envelope.User.Username);
-                        NotifyUserRelations(relationsList);
+                        NotifyUserRelations();
                     }
                     break;
                 case "BlockUser":
@@ -109,8 +109,7 @@ namespace TCPChatApp.Server
                         };
                         bool success = relationRepository.AddRelation(relation);
                         Console.WriteLine(success ? $"✅ Blocked user: {relation.TargetName}" : $"⚠️ Failed to block user: {relation.TargetName}");
-                        var relationsList = relationRepository.GetRelationsByUserName(envelope.User.Username);
-                        NotifyUserRelations(relationsList);
+                        NotifyUserRelations();
                     }
                     break;
                 default:
@@ -120,8 +119,9 @@ namespace TCPChatApp.Server
         }
 
 
-        private void NotifyUserRelations(List<Relation> relationsList)
+        private void NotifyUserRelations()
         {
+            var relationsList = relationRepository.GetRelationsByUserName(user!.Username);
             var envelope = new Envelope
             {
                 Type = "RelationsList",

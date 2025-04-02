@@ -8,24 +8,6 @@
         Title="MainWindow"
         Height="450"
         Width="800">
-    <Window.Resources>
-        <!-- Context menu resource -->
-        <ContextMenu x:Key="UserContextMenu">
-            <MenuItem Header="Message User"
-                      Click="MessageUser_Click"/>
-            <MenuItem Header="Add User"
-                      Click="AddUser_Click"/>
-            <MenuItem Header="Block User"
-                      Click="BlockUser_Click"/>
-        </ContextMenu>
-        <Style x:Key="ListBoxItemStyleWithContextMenu"
-               TargetType="ListBoxItem">
-            <EventSetter Event="PreviewMouseRightButtonDown"
-                         Handler="ListBoxItem_PreviewMouseRightButtonDown"/>
-            <Setter Property="ContextMenu"
-                    Value="{StaticResource UserContextMenu}"/>
-        </Style>
-    </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -57,8 +39,7 @@
         <GroupBox Header="Online Users"
                   Grid.Column="1"
                   Margin="10">
-            <ListBox x:Name="OnlineUsersList"
-                     ItemContainerStyle="{StaticResource ListBoxItemStyleWithContextMenu}"/>
+            <ListBox x:Name="OnlineUsersList"/>
         </GroupBox>
     </Grid>
 </Window>
