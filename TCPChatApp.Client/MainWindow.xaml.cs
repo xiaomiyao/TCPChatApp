@@ -41,6 +41,30 @@ namespace TCPChatApp.Client
             ConnectToServer();
         }
 
+        private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            // Allow dragging the window
+            DragMove();
+        }
+
+        private void MinimizeButton_Click(object sender, RoutedEventArgs e)
+        {
+            SystemCommands.MinimizeWindow(this);
+        }
+
+        private void MaximizeButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.WindowState == WindowState.Normal)
+                SystemCommands.MaximizeWindow(this);
+            else
+                SystemCommands.RestoreWindow(this);
+        }
+
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            SystemCommands.CloseWindow(this);
+        }
+
         private void ChatFilter_TextChanged(object sender, TextChangedEventArgs e)
         {
             string filterText = ChatFilter.Text.ToLower();

@@ -7,84 +7,208 @@
         mc:Ignorable="d"
         Title="MainWindow"
         Height="450"
-        Width="800">
+        Width="800"
+        WindowStyle="None"
+        Background="#2F3136"
+        Foreground="White"
+        MouseLeftButtonDown="Window_MouseLeftButtonDown">
+    <Window.Resources>
+        <!-- Discord-Inspired Styles -->
+        <Style TargetType="TextBox">
+            <Setter Property="Background"
+                    Value="#36393F"/>
+            <Setter Property="Foreground"
+                    Value="White"/>
+            <Setter Property="BorderBrush"
+                    Value="#202225"/>
+            <Setter Property="BorderThickness"
+                    Value="1"/>
+            <Setter Property="Padding"
+                    Value="4"/>
+        </Style>
+        <Style TargetType="ListBox">
+            <Setter Property="Background"
+                    Value="#36393F"/>
+            <Setter Property="Foreground"
+                    Value="White"/>
+            <Setter Property="BorderBrush"
+                    Value="#202225"/>
+            <Setter Property="BorderThickness"
+                    Value="1"/>
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="Background"
+                    Value="#7289DA"/>
+            <Setter Property="Foreground"
+                    Value="White"/>
+            <Setter Property="BorderBrush"
+                    Value="Transparent"/>
+            <Setter Property="Padding"
+                    Value="10,5"/>
+            <Setter Property="Cursor"
+                    Value="Hand"/>
+        </Style>
+        <Style TargetType="GroupBox">
+            <Setter Property="Background"
+                    Value="#2F3136"/>
+            <Setter Property="Foreground"
+                    Value="White"/>
+            <Setter Property="BorderBrush"
+                    Value="#202225"/>
+            <Setter Property="BorderThickness"
+                    Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="GroupBox">
+                        <Grid>
+                            <!-- Border with desired dark color -->
+                            <Border
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="3"
+                                Padding="4,14,4,4">
+                                <ContentPresenter Content="{TemplateBinding Content}"/>
+                            </Border>
+                            <!-- Header text positioned at the top left -->
+                            <TextBlock Text="{TemplateBinding Header}"
+                                       Foreground="{TemplateBinding Foreground}"
+                                       Background="{TemplateBinding Background}"
+                                       Margin="8,0,0,0"
+                                       VerticalAlignment="Top"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="200"/>
-        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <!-- Custom Title Bar -->
+            <RowDefinition Height="*"/>
+            <!-- Main Content -->
+        </Grid.RowDefinitions>
 
-        <!-- Chat Area - Left Column -->
-        <Grid Grid.Column="0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            
-            <!-- Add search filter for chat -->
-            <TextBox x:Name="ChatFilter"
-                     Grid.Row="0"
-                     Margin="10,10,10,0"
-                     TextChanged="ChatFilter_TextChanged"
-                     BorderThickness="1"
-                     VerticalAlignment="Center"
-                     Height="24"/>
-                    
-            <TextBox x:Name="ChatDisplay"
-                     Grid.Row="1"
-                     Margin="10"
-                     IsReadOnly="True"
-                     VerticalScrollBarVisibility="Auto"
-                     TextWrapping="Wrap"/>
-            
-            <StackPanel Grid.Row="2"
-                        Orientation="Horizontal"
-                        Margin="10">
-                <TextBox x:Name="MessageInput"
-                         Width="300"
-                         Margin="0,0,10,0"/>
-                <Button x:Name="SendButton"
-                        Content="Send"
-                        Width="100"
-                        Click="SendButton_Click"/>
-            </StackPanel>
-        </Grid>
+        <!-- Custom Title Bar -->
+        <Border Grid.Row="0"
+                Background="#2F3136"
+                BorderBrush="#202225"
+                BorderThickness="0,0,0,1">
+            <Grid>
+                <TextBlock Text="Chat App"
+                        VerticalAlignment="Center"
+                        Margin="10,0,0,0"
+                        Foreground="White"/>
+                <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Right">
+                    <Button x:Name="MinimizeButton"
+                            Content="&#x2013;"
+                            Width="40"
+                            Height="30"
+                            Background="Transparent"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Click="MinimizeButton_Click"/>
+                    <Button x:Name="MaximizeButton"
+                            Content="&#x25A1;"
+                            Width="40"
+                            Height="30"
+                            Background="Transparent"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Click="MaximizeButton_Click"/>
+                    <Button x:Name="CloseButton"
+                            Content="X"
+                            Width="40"
+                            Height="30"
+                            Background="Transparent"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Click="CloseButton_Click"/>
+                </StackPanel>
+            </Grid>
+        </Border>
 
-        <!-- Users Lists - Right Column -->
-        <Grid Grid.Column="1">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
+        <!-- Main Content -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="200"/>
+            </Grid.ColumnDefinitions>
 
-            <!-- Online Users List -->
-            <GroupBox Header="Online Users"
-                     Grid.Row="0"
-                     Margin="10">
-                <ListBox x:Name="OnlineUsersList"/>
-            </GroupBox>
+            <!-- Chat Area - Left Column -->
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-            <!-- Friends List -->
-            <GroupBox Header="Friends"
-                     Grid.Row="1"
-                     Margin="10">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    
-                    <TextBox x:Name="FriendsFilter"
-                             Grid.Row="0"
-                             Margin="0,0,0,5"
-                             TextChanged="FriendsFilter_TextChanged"
-                             BorderThickness="1"/>
-                    
-                    <ListBox x:Name="FriendsList"
-                             Grid.Row="1"/>
-                </Grid>
-            </GroupBox>
+                <!-- Chat Filter -->
+                <TextBox x:Name="ChatFilter"
+                         Grid.Row="0"
+                         Margin="10,10,10,0"
+                         TextChanged="ChatFilter_TextChanged"
+                         Height="24"/>
+
+                <!-- Chat Display -->
+                <TextBox x:Name="ChatDisplay"
+                         Grid.Row="1"
+                         Margin="10"
+                         IsReadOnly="True"
+                         VerticalScrollBarVisibility="Auto"
+                         TextWrapping="Wrap"/>
+
+                <!-- Message Input and Send -->
+                <StackPanel Grid.Row="2"
+                            Orientation="Horizontal"
+                            Margin="10">
+                    <TextBox x:Name="MessageInput"
+                             Width="300"
+                             Margin="0,0,10,0"/>
+                    <Button x:Name="SendButton"
+                            Content="Send"
+                            Width="100"
+                            Click="SendButton_Click"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- Users Lists - Right Column -->
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Online Users List -->
+                <GroupBox Header="Online Users"
+                          Grid.Row="0"
+                          Margin="10">
+                    <ListBox x:Name="OnlineUsersList"/>
+                </GroupBox>
+
+                <!-- Friends List -->
+                <GroupBox Header="Friends"
+                          Grid.Row="1"
+                          Margin="10">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBox x:Name="FriendsFilter"
+                                 Grid.Row="0"
+                                 Margin="0,0,0,5"
+                                 TextChanged="FriendsFilter_TextChanged"/>
+
+                        <ListBox x:Name="FriendsList"
+                                 Grid.Row="1"/>
+                    </Grid>
+                </GroupBox>
+            </Grid>
         </Grid>
     </Grid>
 </Window>

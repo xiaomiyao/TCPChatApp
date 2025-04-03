@@ -13,7 +13,7 @@
                 Padding="20"
                 Margin="10">
             <StackPanel>
-                <TextBlock Text="Welcome"S
+                <TextBlock Text="Welcome"
                         FontSize="20"
                            Foreground="White"
                            HorizontalAlignment="Center"
