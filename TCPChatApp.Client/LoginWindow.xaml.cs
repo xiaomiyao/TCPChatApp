@@ -96,8 +96,6 @@ namespace TCPChatApp.Client
                     MessageBox.Show(responseEnvelope?.Message?.Content ?? "Login failed", "Login", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
             }
-
-            MessageBox.Show("Login clicked!");
         }
     }
 }
