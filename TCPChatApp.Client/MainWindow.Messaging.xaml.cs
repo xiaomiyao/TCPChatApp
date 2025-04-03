@@ -52,8 +52,13 @@ namespace TCPChatApp.Client
 
             // 🧹 Clear input
             MessageInput.Clear();
-            // 🖥️ Update UI
-            Dispatcher.Invoke(() => ChatDisplay.AppendText($"You: {content}\n"));
+
+            // 🖥️ Update UI and append to chat history
+            Dispatcher.Invoke(() =>
+            {
+                ChatDisplay.AppendText($"You: {content}\n");
+                _fullChatHistory += $"You: {content}\n";
+            });
         }
 
         private void HandlePrivateMessage(Message message)
@@ -72,7 +77,7 @@ namespace TCPChatApp.Client
             _writer.WriteLine(encrypted);
 
             // Update UI: Display the sent message with recipient info
-            Dispatcher.Invoke(() => 
+            Dispatcher.Invoke(() =>
             {
                 ChatDisplay.AppendText($"You to {message.Recipient}: {message.Content}\n");
                 _fullChatHistory += $"You to {message.Recipient}: {message.Content}\n";
